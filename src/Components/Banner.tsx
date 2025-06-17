@@ -9,14 +9,14 @@ const Banner = () => {
                 initial={{ opacity: 0, filter: "blur(3px)" }}
                 animate={{ opacity: 1, filter: "blur(0px)" }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
-                className="banner_container bg-blue-50 rounded-4xl w-fit flex items-center justify-evenly"
+                className="banner_container bg-blue-50 rounded-4xl w-screen md:w-[40rem] lg:w-[80rem] flex-wrap flex items-center justify-center"
             >
                 <motion.div
                     initial={{ x: -200, rotate: -10, opacity: 0 }}
                     animate={{ x: 0, rotate: 0, opacity: 1 }}
                     exit={{ x: -200, rotate: -10, opacity: 0 }}
                     transition={{ type: "spring", stiffness: 100 }}
-                    className="w-md p-4"
+                    className="w-md p-4 lg:w-[43rem]"
                 >
                     <div className="heading w-full flex items-center">
                         <div className="logo w-fit">
@@ -36,9 +36,9 @@ const Banner = () => {
                     animate={{ x: 0, rotate: 0, opacity: 1 }}
                     exit={{ x: 200, rotate: 10, opacity: 0 }}
                     transition={{ type: "spring", stiffness: 100 }}
-                    className="w-md p-4"
+                    className="w-md p-4 flex items-center justify-center"
                 >
-                    <img src={Image2} alt="" className="rounded-2xl  w-96" />
+                    <img src={Image2} alt="" className="rounded-2xl   w-96" />
                 </motion.div>
             </motion.div>
         </div>

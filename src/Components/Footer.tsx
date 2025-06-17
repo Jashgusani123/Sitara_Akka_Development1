@@ -12,7 +12,7 @@ const Footer = () => {
                 transition={{ type: "spring", stiffness: 100 }}
                 className="w-full p-4 flex justify-around"
             >
-                <button className="bg-[#FAC54D] rounded-2xl text-3xl cursor-pointer p-2 w-fit hover:scale-105 transition-transform duration-200" onClick={handleResorcesShow}>
+                <button className="bg-[#FAC54D] rounded-2xl lg:text-3xl text-2xl cursor-pointer p-2 w-fit hover:scale-105 transition-transform duration-200" onClick={handleResorcesShow}>
                     To Access Resources Click Here ,<span className="text-[#0E6BB0]">Let's Go</span>
                 </button>
             </motion.div>
@@ -23,7 +23,7 @@ const Footer = () => {
                 transition={{ type: "spring", stiffness: 100 }}
                 className="w-full flex justify-around "
             >
-                <button className="bg-[#0E6BB0] rounded-2xl text-3xl cursor-pointer p-2 w-fit hover:scale-105 transition-transform duration-200" onClick={handleWhatsappChat}>
+                <button className="bg-[#0E6BB0] rounded-2xl lg:text-3xl text-2xl cursor-pointer p-2 w-fit hover:scale-105 transition-transform duration-200" onClick={handleWhatsappChat}>
                     To Speak with your Anna / Akka, Click Here ,<span className="text-[#FAC54D]">Whatsapp</span>
                 </button>
             </motion.div>
