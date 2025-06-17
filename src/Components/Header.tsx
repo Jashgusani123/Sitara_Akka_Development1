@@ -2,12 +2,13 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import { GetLanguages } from "../APIs/GetAPIs";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const [selectLangBox, setSelectLangBox] = useState(false);
   const [selectedLang, setSelectedLang] = useState<string>("");
   const [Languages, setLanguages] = useState<Array<string>>([]);
-
+  const navigate = useNavigate();
   const handleClickSelectLanguage = async () => {
     setSelectLangBox(!selectLangBox);
     if (Languages.length === 0) {
@@ -21,6 +22,7 @@ const Header = () => {
         animate={{ opacity: 1, filter: "blur(0px)" }}
         transition={{ duration: 0.8, ease: "easeOut" }}
         className="welcome bg-[#0E6BB0] flex justify-center text-white p-4 text-2xl rounded-2xl"
+        onClick={()=>navigate("/admin/dashbord")}
       >
         <p>Welcome</p>
       </motion.div>
@@ -58,9 +60,9 @@ const Header = () => {
                     {lang}
                   </p>
                 )
-              ):<div
-              className="w-10 h-10 border-4 border-t-blue-500 border-gray-300 rounded-full animate-spin"
-            ></div>}
+              ) : <div
+                className="w-10 h-10 border-4 border-t-blue-500 border-gray-300 rounded-full animate-spin"
+              ></div>}
             </div>
             <button className="bg-white p-2 rounded-2xl cursor-pointer">
               Select

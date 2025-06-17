@@ -1,11 +1,19 @@
 import { motion } from "motion/react";
+import { useNavigate } from "react-router-dom";
 
-const Footer = () => {
+const Footer = ({admin , onlyLast}:{admin?:boolean , onlyLast?:boolean}) => {
+    const navigate = useNavigate();
     const handleWhatsappChat = ()=>{};
-    const handleResorcesShow = ()=>{};
+    const handleResorcesShow = ()=>{
+        if(admin){
+            navigate("/admin/resources")
+        }else{
+            navigate("/resources")
+        }
+    };
     return (
         <>
-            <motion.div
+            {!onlyLast && <motion.div
                 initial={{ x: -200, rotate: -10, opacity: 0 }}
                 animate={{ x: 0, rotate: 0, opacity: 1 }}
                 exit={{ x: -200, rotate: -10, opacity: 0 }}
@@ -15,7 +23,7 @@ const Footer = () => {
                 <button className="bg-[#FAC54D] rounded-2xl lg:text-3xl text-2xl cursor-pointer p-2 w-fit hover:scale-105 transition-transform duration-200" onClick={handleResorcesShow}>
                     To Access Resources Click Here ,<span className="text-[#0E6BB0]">Let's Go</span>
                 </button>
-            </motion.div>
+            </motion.div>}
             <motion.div
                 initial={{ x: 200, rotate: 10, opacity: 0 }}
                 animate={{ x: 0, rotate: 0, opacity: 1 }}
