@@ -1,85 +1,105 @@
-import axios from "axios"
-import type { Dispatch, SetStateAction } from "react";
-
+import axios from "axios";
+import type { Dispatch as ReduxDispatch } from "redux";
+import { setEntries } from "../Redux/Slices/entriesSlice";
+import { setGottedLanguages } from "../Redux/Slices/languageSlice";
+import { setResourceItemsMap } from "../Redux/Slices/resourceItemsSlice";
+import { setResources } from "../Redux/Slices/resourcesSlice";
+import { setSubDataMap } from "../Redux/Slices/subDataSlice";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 export const GetLanguages = async ({
-  setLanguages,
+  dispatch,
 }: {
-  setLanguages: Dispatch<SetStateAction<string[]>>;
+  dispatch: ReduxDispatch;
 }) => {
   try {
     const response = await axios(`${BASE_URL}/api/resources/languages`);
     if (response.statusText !== "OK") {
-      return console.log("Error in GetLanguage");
+      return false;
     }
-    setLanguages(response.data.languages);
+    dispatch(setGottedLanguages(response.data.languages));
   } catch (error) {
     console.error("Error fetching languages:", error);
   }
 };
 
-export const GetSubjects = async ({lan , setAllSubjects}:{lan:string , setAllSubjects : Dispatch<SetStateAction<{
-  "_id": string,
-  "lan": string,
-  "class": string,
-  "subj": string
-}[]>>}) => {
+export const GetSubjects = async ({
+  lan,
+  dispatch,
+}: {
+  lan: string;
+  dispatch: ReduxDispatch;
+}) => {
   try {
-    const response = await axios(`${BASE_URL}/api/resources/subjects?lan=${lan}`);
+    const response = await axios.get(`${BASE_URL}/api/resources/subjects?lan=${lan}`);
     if (response.statusText !== "OK") {
-      return console.log("Error in GetLanguage");
+      return false;
     }
-    setAllSubjects(response.data.resources);
+    dispatch(setResources(response.data.resources));
+    return true;
   } catch (error) {
-    console.error("Error fetching languages:", error);
+    console.error("GetSubjects error:", error);
+    return false;
   }
-}
+};
 
-export const GetEntries = async({resourceId , setEntries}:{resourceId:string ,setEntries:Dispatch<SetStateAction<{
-  _id: string;
-  type: string;
-}[]>> })=>{
+export const GetEntries = async ({
+  resourceId,
+  dispatch,
+}: {
+  resourceId: string;
+  dispatch: ReduxDispatch;
+}) => {
   try {
     const response = await axios(`${BASE_URL}/api/resource-data-entries/${resourceId}`);
     if (response.statusText !== "OK") {
-      return console.log("Error in GetLanguage");
+      return false;
     }
-    setEntries(response.data.entries)
+    dispatch(setEntries(response.data.entries));
+    return true;
   } catch (error) {
-    console.error("Error fetching languages:", error);
+    console.error("GetEntries error:", error);
+    return false;
   }
-}
+};
 
-export const GetSubdata = async({resourceDataEntryId , setSubData}:{resourceDataEntryId:string , setSubData: Dispatch<SetStateAction<{
-  _id: string,
-  name: string,
-  datatype: string
-}[]>> })=>{
+export const GetSubdata = async ({
+  resourceDataEntryId,
+  dispatch,
+}: {
+  resourceDataEntryId: string;
+  dispatch: ReduxDispatch;
+}) => {
   try {
     const response = await axios(`${BASE_URL}/api/subdata/${resourceDataEntryId}`);
     if (response.statusText !== "OK") {
-      return console.log("Error in GetLanguage");
+      return false;
     }
-    setSubData(response.data.subData)
+    dispatch(setSubDataMap(response.data.subData));
+    return true;
   } catch (error) {
-    console.error("Error fetching languages:", error);
+    console.error("GetSubdata error:", error);
+    return false;
   }
-}
+};
 
-export const GetResourceItems = async({subDataId , setResourceItems}:{subDataId:string , setResourceItems: Dispatch<SetStateAction<{
-  _id: string,
-  name: string,
-  type: string
-}[]>> })=>{
+export const GetResourceItems = async ({
+  subDataId,
+  dispatch,
+}: {
+  subDataId: string;
+  dispatch: ReduxDispatch;
+}) => {
   try {
     const response = await axios(`${BASE_URL}/api/resource-items/${subDataId}`);
     if (response.statusText !== "OK") {
-      return console.log("Error in GetLanguage");
+      return false;
     }
-    setResourceItems(response.data.items)
+    dispatch(setResourceItemsMap({ key: subDataId, items: response.data.items }));
+    return true;
   } catch (error) {
-    console.error("Error fetching languages:", error);
+    console.error("GetResourceItems error:", error);
+    return false;
   }
-}
+};

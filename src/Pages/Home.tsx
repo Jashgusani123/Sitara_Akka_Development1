@@ -7,7 +7,7 @@ const Home = () => {
         <>
             <Header />
             <Banner />
-            <Footer admin={true}/>
+            <Footer admin={false}/>
         </>
     );
 };
