@@ -26,8 +26,16 @@ const resourceSlice = createSlice({
     clearResources: (state) => {
       state.resources = [];
     },
+    removeResourceById: (state, action: PayloadAction<string>) => {
+      state.resources = state.resources.filter(r => r._id !== action.payload);
+    },
+    replaceFirstIfIdMatches: (state, action: PayloadAction<Resource>) => {
+      if (state.resources.length && state.resources[0]._id === action.payload._id) {
+        state.resources[0] = action.payload;
+      }
+    },
   },
 });
 
-export const { setResources, clearResources } = resourceSlice.actions;
+export const { setResources, clearResources , removeResourceById ,replaceFirstIfIdMatches} = resourceSlice.actions;
 export default resourceSlice.reducer;

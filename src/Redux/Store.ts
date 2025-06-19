@@ -4,6 +4,7 @@ import resourcesReducer from "./Slices/resourcesSlice";
 import entriesReducer from "./Slices/entriesSlice";
 import subDataReducer from "./Slices/subDataSlice";
 import resourceItemsReducer from "./Slices/resourceItemsSlice";
+import userReducer from "./Slices/userSlice";
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     entries: entriesReducer,
     subData: subDataReducer,
     resourceItems: resourceItemsReducer,
+    user: userReducer,
   },
 });
 

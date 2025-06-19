@@ -1,66 +1,230 @@
-import { useState } from 'react'
-import { SlBadge, SlInfo, SlMagnet, SlPhone, SlSocialFoursqare, SlUser } from 'react-icons/sl'
-import Image from '../assets/Register Image.png'
-
+import { useState } from 'react';
+import { CiCalendarDate } from "react-icons/ci";
+import { PiGenderIntersexLight } from "react-icons/pi";
+import {
+  SlPhone,
+  SlUser
+} from 'react-icons/sl';
+import Image from '../assets/Register Image.png';
+import { useNavigate } from 'react-router-dom';
+import { AnimatePresence, motion } from 'motion/react';
+import { MdOutlineClass } from "react-icons/md";
+import { RegistrationUser } from '../APIs/PostAPIs';
+import { useDispatch } from 'react-redux';
 const Registration = () => {
-  const [step1, setStep1] = useState<boolean>(false)
-  const [step2, setStep2] = useState<boolean>(false)
-  const [step3, setStep3] = useState<boolean>(true)
-  const [step4, setStep4] = useState<boolean>(false)
-  return (
-    <>
-      <div className="registraction_container flex justify-center  flex-col items-center">
-        <img src={Image} alt="" className='h-full w-50' />
-        <div className="bg-[#FFD000] shadow-lg h-auto w-180 p-4 rounded-2xl">
-          <div className="timeline flex justify-center gap-5 p-4">
-            <div className='step1 flex w-26 bg-[#0E6BB0] p-4 rounded-2xl justify-center flex-col items-center'>
-              <SlPhone size={30} color='#f0d86f' />
-            </div>
-            <div className='flex items-center  justify-center'>
-              <p className='bg-black rounded-2xl  w-20 h-1 '></p>
-            </div>
-            <div className='step2 flex w-26 bg-[#0E6BB0] p-4 rounded-2xl flex-col items-center'>
-              <SlUser size={30} color='#f0d86f' />
-            </div>
-            <div className='flex items-center justify-center'>
-              <p className='bg-black rounded-2xl  w-20 h-1 '></p>
-            </div>
-            <div className='step3 flex w-26 bg-[#0E6BB0] p-4 rounded-2xl flex-col items-center'>
-              <SlBadge size={30} color='#f0d86f' />
-            </div>
-            <div className='flex items-center justify-center'>
-              <p className='bg-black rounded-2xl  w-20 h-1 '></p>
-            </div>
-            <div className='step4 flex w-26 bg-[#0E6BB0] p-4 rounded-2xl flex-col items-center'>
-              <SlMagnet size={30} color='#f0d86f' />
-            </div>
-          </div>
-          <form className='p-5 flex justify-around gap-5 flex-col'>
-            {step1 && (
-              <input type="tel" placeholder='Enter Phone Number ..' className='border-2 border-zinc-800 p-4 rounded-2xl' />
-            )}
-            {step2 && (
-              <>
-                <input type="text" placeholder='Firstname ...' className='border-2 border-zinc-800 p-4 rounded-2xl' />
-                <input type="text" placeholder='Lastname ...' className='border-2 border-zinc-800 p-4 rounded-2xl' />
-              </>
-            )}
-            {step3 && (
-              <>
-                <input type="text" placeholder='Enter your Gender ..' className='border-2 border-zinc-800 p-4 rounded-2xl' />
-              </>
-            )}
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [step, setStep] = useState(1)
 
-            {step4 && (
-              <>
-                <input type="text" placeholder='Enter your Age ..' className='border-2 border-zinc-800 p-4 rounded-2xl' />
-              </>
-            )}
-            <button className='w-full bg-zinc-800 h-10 rounded-2xl text-white cursor-pointer'>Next</button>
-          </form>
+  const [phone, setPhone] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [age, setAge] = useState<number>(1);
+  const [standard, setStandard] = useState('');
+  const [gender, setGender] = useState('');
+
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+  const nextStep = () => {
+    if (step === 1) {
+      if (!/^\d{10}$/.test(phone)) {
+        setError('Phone number must be 10 digits...');
+        return;
+      }
+    } else if (step === 2) {
+      if (!firstName.trim() || !lastName.trim()) {
+        setError('First and Last name are required');
+        return;
+      }
+    } else if (step === 3) {
+      if (!age || isNaN(age) || +age < 5 || +age > 100) {
+        setError('Enter a valid age between 5 and 100');
+        return;
+      }
+    } else if (step === 4) {
+      if (!standard.trim()) {
+        setError('Please enter your Standard (e.g., 10th)');
+        return;
+      }
+    } else if (step === 5) {
+      if (!gender) {
+        setError('Please select your gender');
+        return;
+      }
+    }
+
+    setError('');
+    if (step < 5) setStep((prev) => prev + 1);
+  };
+
+  const getStepStyle = (index: number) =>
+    `flex w-12 h-12 sm:w-16 sm:h-16 items-center justify-center rounded-full transition-all duration-300 ${step === index ? 'bg-yellow-400 shadow-lg scale-110' : 'bg-blue-600 opacity-60'
+    }`
+
+  const handleLoginRequest = () => {
+    navigate("/login");
+  }
+
+  const handleRegistrationFormSubmit = async () => {
+    const res = await RegistrationUser({ phone, firstName, lastName, age, standard, gender, dispatch })
+    if(res)
+    {
+      setMessage("Registration Successfully Done !!")
+    }
+  }
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
+      <img src={Image} alt="Registration" className="w-32 sm:w-40 mb-6" />
+
+      <div className="bg-white shadow-2xl w-full max-w-xl rounded-3xl p-6">
+        {/* Timeline */}
+        <div className="flex justify-between items-center mb-8 relative">
+          {[1, 2, 3, 4, 5].map((i, idx) => (
+            <div key={i} className="flex flex-col items-center relative">
+              <div className={getStepStyle(i)}>
+                {i === 1 && <SlPhone size={22} color="#ffff" />}
+                {i === 2 && <SlUser size={22} color="#ffff" />}
+                {i === 3 && <CiCalendarDate size={22} color="#ffff" />}
+                {i === 4 && <MdOutlineClass size={22} color="#fff" />}
+                {i === 5 && <PiGenderIntersexLight size={22} color="#fff" />}
+              </div>
+              <p className="text-xs mt-1">
+                {['Phone', 'Name', 'Age', 'Standard', 'Gender'][i - 1]}
+              </p>
+
+
+            </div>
+          ))}
         </div>
+
+        {/* Form with transition */}
+        <form className="space-y-4 transition-all duration-500" onSubmit={handleRegistrationFormSubmit}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={step}
+              initial={{ x: 100, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -100, opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              className="min-h-[80px]"
+            >
+              {step === 1 && (
+                <>
+                  <label className="text-sm text-zinc-600 px-2">
+                    <span className="text-zinc-900 font-medium">Phone Number</span>
+                  </label>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value.trim())}
+                    placeholder="Enter Phone Number"
+                    className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-400"
+                  />
+                </>
+              )}
+
+              {step === 2 && (
+                <>
+                  <label className="text-sm text-zinc-600 px-2">
+                    <span className="text-zinc-900 font-medium">Fullname</span>
+                    <span className="text-zinc-500"> (e.g. John Deo = Firstname - John)</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="Firstname"
+                    className="w-full p-3 mb-3 border border-gray-300 rounded-xl"
+                  />
+                  <label className="text-sm text-zinc-600 px-2">
+                    <span className="text-zinc-900 font-medium">Lastname</span>
+                    <span className="text-zinc-500"> (e.g. John Deo = Lastname - Deo)</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Lastname"
+                    className="w-full p-3 border border-gray-300 rounded-xl"
+                  />
+                </>
+              )}
+
+              {step === 3 && (
+                <>
+                  <label className="text-sm text-zinc-600 px-2">
+                    <span className="text-zinc-900 font-medium">Age</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={age}
+                    onChange={(e) => {
+                      const value = Number(e.target.value);
+                      if (value >= 1) setAge(value);
+                    }}
+                    min={1}
+                    placeholder="Enter your Age"
+                    className="w-full p-3 border border-gray-300 rounded-xl"
+                  />
+
+                </>
+              )}
+
+              {step === 4 && (
+                <>
+                  <label className="text-sm text-zinc-600 px-2">
+                    <span className="text-zinc-900 font-medium">Standard</span>
+                    <span className="text-zinc-500"> (e.g. 10)</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={standard}
+                    onChange={(e) => setStandard(e.target.value)}
+                    placeholder="Enter your Standard"
+                    className="w-full p-3 border border-gray-300 rounded-xl"
+                  />
+                </>
+              )}
+
+              {step === 5 && (
+                <>
+                  <label className="text-sm text-zinc-600 px-2">
+                    <span className="text-zinc-900 font-medium">Gender</span>
+                  </label>
+                  <select
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value)}
+                    className="w-full p-3 cursor-pointer border border-gray-300 rounded-xl text-gray-700 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  >
+                    <option value="" disabled>Select your Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                  </select>
+                </>
+              )}
+            </motion.div>
+          </AnimatePresence>
+
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {message && <p className="text-green-500 text-sm">{message}</p>}
+
+          <button
+            type="button"
+            onClick={step < 5 ? nextStep : handleRegistrationFormSubmit}
+            className="w-full cursor-pointer bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-xl text-lg font-medium transition"
+          >
+            {step < 5 ? 'Next' : 'Finish'}
+          </button>
+
+          <span className='flex justify-center w-full items-center gap-2'>
+            Already Have an Account,
+            <button className='text-blue-800 cursor-pointer' onClick={handleLoginRequest}>Login</button>
+          </span>
+        </form>
+
       </div>
-    </>
+    </div>
   )
 }
 

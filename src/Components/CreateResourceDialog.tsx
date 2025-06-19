@@ -10,26 +10,32 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { CreateResource } from "../APIs/PostAPIs";
 
-const CreateResourceDialog = () => {
+const CreateResourceDialog = ({ onNext }:{ onNext: (data: any) => void}) => {
   const [open, setOpen] = useState(true);
   const [languageDialog, setLanguageDialog] = useState("");
   const [className, setClassName] = useState("");
   const [subject, setSubject] = useState("");
-  const [message , setMessage] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
   const dispatch = useDispatch();
 
   const handleClose = () => setOpen(false);
 
-  const handleSubmit = async(e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // Call your CreateLanguage or submit function here
-   await  CreateResource({lan:languageDialog , className , subj:subject , dispatch , setMessage})
+    console.log({ languageDialog, className, subj: subject, dispatch, setMessage });
+
+    const res = await CreateResource({ lan: languageDialog, className, subj: subject, dispatch, setMessage })
+    if (res) {
+      console.log("ya That's Work !!");
+      onNext(res);
+    }
     // handleClose();
   };
 
   return (
     <>
-      
+
       <Dialog
         open={open}
         onClose={handleClose}

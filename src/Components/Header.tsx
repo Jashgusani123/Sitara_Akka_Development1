@@ -7,10 +7,10 @@ import { GetLanguages } from "../APIs/GetAPIs";
 import LanguageSelector from "./LanguageSelector";
 import type { RootState } from "../Redux/Store";
 
-const Header = () => {
+const Header = ({ IsAdmin }: { IsAdmin?: boolean }) => {
   const [selectLangBox, setSelectLangBox] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [Languages] = useSelector((state:RootState)=>state.language.selectedLanguage);
+  const [Languages] = useSelector((state: RootState) => state.language.selectedLanguage);
   const location = window.location.pathname;
 
   const navigate = useNavigate();
@@ -22,6 +22,7 @@ const Header = () => {
     }
   };
 
+  console.log(IsAdmin);
 
   return (
     <header className="home_navbar flex justify-center md:justify-between lg:justify-between gap-3 flex-wrap w-full p-4">

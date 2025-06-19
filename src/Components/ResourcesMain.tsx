@@ -3,11 +3,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { GetEntries, GetResourceItems, GetSubdata, GetSubjects } from "../APIs/GetAPIs";
+import { setSubDataMap } from "../Redux/Slices/subDataSlice";
 import type { RootState } from "../Redux/Store";
-import CreateResourceDialog from "./CreateResourceDialog";
+import CreateFullResource from "./CreateFullResource";
 import LanguageSelector from "./LanguageSelector";
 import Loding from "./Loding";
-import { setSubDataMap } from "../Redux/Slices/subDataSlice";
+import { deleteResource } from "../APIs/PostAPIs";
 
 
 
@@ -92,6 +93,10 @@ const ResourcesMain = ({ isAdmin }: { isAdmin?: boolean }) => {
     const handleCreateResourceBTN = () => {
         setIsDialogOpen(true)
     }
+
+    const handleDelete = ({id , at , key}:{id:string , at:string , key?:string})=>{
+        deleteResource({id , at , dispatch , key})
+    }
     return (
         <main className="w-full h-auto p-4 bg-[#FAC54D] rounded-2xl">
             <div className="resources_heading w-full flex bg-white mb-4 rounded-[10px] items-center justify-between">
@@ -118,7 +123,7 @@ const ResourcesMain = ({ isAdmin }: { isAdmin?: boolean }) => {
                                         <button className="bg-green-400 text-white rounded-xl px-4 py-1 hover:bg-green-500 text-sm transition">
                                             Edit
                                         </button>
-                                        <button className="bg-red-400 text-white rounded-xl px-4 py-1 hover:bg-red-500 text-sm transition">
+                                        <button className="bg-red-400 text-white rounded-xl px-4 py-1 hover:bg-red-500 text-sm transition" onClick={()=>{handleDelete({id:i._id , at:"resources"})}}>
                                             Delete
                                         </button>
                                     </div>}
@@ -148,7 +153,7 @@ const ResourcesMain = ({ isAdmin }: { isAdmin?: boolean }) => {
                                                                 <button className="bg-green-300 rounded-xl px-3 py-1 hover:bg-green-400 text-sm transition">
                                                                     Edit
                                                                 </button>
-                                                                <button className="bg-red-300 rounded-xl px-3 py-1 hover:bg-red-400 text-sm transition">
+                                                                <button className="bg-red-300 rounded-xl px-3 py-1 hover:bg-red-400 text-sm transition" onClick={()=>{handleDelete({id:entry._id , at:"resource-data-entries"})}}>
                                                                     Delete
                                                                 </button>
                                                             </div>}
@@ -166,7 +171,7 @@ const ResourcesMain = ({ isAdmin }: { isAdmin?: boolean }) => {
                                                                 >
                                                                     {subDataMap.length > 0 ? (
                                                                         subDataMap.map((sub) => {
-                                                                            const isArray = sub.datatype === "array";
+                                                                            const isArray = sub.datatype === "array" || sub.datatype === "file";
                                                                             const isSubExpanded = expandedSubId === sub._id;
 
                                                                             return (
@@ -190,7 +195,7 @@ const ResourcesMain = ({ isAdmin }: { isAdmin?: boolean }) => {
                                                                                             <button className="bg-green-200 rounded px-2 py-1 text-xs hover:bg-green-300">
                                                                                                 Edit
                                                                                             </button>
-                                                                                            <button className="bg-red-200 rounded px-2 py-1 text-xs hover:bg-red-300">
+                                                                                            <button className="bg-red-200 rounded px-2 py-1 text-xs hover:bg-red-300"  onClick={()=>{handleDelete({id:sub._id , at:"subdata"})}}>
                                                                                                 Delete
                                                                                             </button>
                                                                                         </div>}
@@ -223,7 +228,7 @@ const ResourcesMain = ({ isAdmin }: { isAdmin?: boolean }) => {
                                                                                                                     <button className="bg-green-200 rounded px-2 py-1 text-xs hover:bg-green-300">
                                                                                                                         Edit
                                                                                                                     </button>
-                                                                                                                    <button className="bg-red-200 rounded px-2 py-1 text-xs hover:bg-red-300">
+                                                                                                                    <button className="bg-red-200 rounded px-2 py-1 text-xs hover:bg-red-300" onClick={()=>{handleDelete({id:item._id , at:"resource-items" , key:sub._id})}}>
                                                                                                                         Delete
                                                                                                                     </button>
                                                                                                                 </div>}
@@ -263,7 +268,7 @@ const ResourcesMain = ({ isAdmin }: { isAdmin?: boolean }) => {
                 fetchResources()
             }} />}
 
-            {isDialogOpen && <CreateResourceDialog />}
+            {isDialogOpen && <CreateFullResource />}
 
             <Snackbar
                 open={openSnackbar}

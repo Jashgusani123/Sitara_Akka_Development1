@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import type { PayloadAction } from '@reduxjs/toolkit'
+import type { PayloadAction } from '@reduxjs/toolkit';
 
 interface ResourceItem {
     _id: string;
@@ -29,8 +29,27 @@ const resourceItemsSlice = createSlice({
         clearResourceItemsMap: (state) => {
             state.resourceItemsMap = {};
         },
+        removeResourceItemById: (state, action: PayloadAction<{ key: string; id: string }>) => {
+            const { key, id } = action.payload;
+            if (state.resourceItemsMap[key]) {
+                state.resourceItemsMap[key] = state.resourceItemsMap[key].filter(item => item._id !== id);
+            }
+        },
+        replaceFirstIfIdMatches: (state, action: PayloadAction<{ key: string; item: ResourceItem }>) => {
+            const { key, item } = action.payload;
+            const list = state.resourceItemsMap[key];
+            if (list && list.length && list[0]._id === item._id) {
+                list[0] = item;
+            }
+        },
     },
 });
 
-export const { setResourceItemsMap, clearResourceItemsMap } = resourceItemsSlice.actions;
+export const {
+    setResourceItemsMap,
+    clearResourceItemsMap,
+    removeResourceItemById,
+    replaceFirstIfIdMatches
+} = resourceItemsSlice.actions;
+
 export default resourceItemsSlice.reducer;

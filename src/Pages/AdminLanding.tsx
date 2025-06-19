@@ -5,7 +5,7 @@ import Header from "../Components/Header"
 const AdminLanding = () => {
     return (
         <>
-            <Header />
+            <Header IsAdmin={true}/>
             <Banner />
             <Footer admin={true}/>
         </>
