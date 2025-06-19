@@ -11,6 +11,8 @@ import { AnimatePresence, motion } from 'motion/react';
 import { MdOutlineClass } from "react-icons/md";
 import { RegistrationUser } from '../APIs/PostAPIs';
 import { useDispatch } from 'react-redux';
+import Logo from '../assets/Logo.png';
+
 const Registration = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -67,19 +69,25 @@ const Registration = () => {
 
   const handleRegistrationFormSubmit = async () => {
     const res = await RegistrationUser({ phone, firstName, lastName, age, standard, gender, dispatch })
-    if(res)
-    {
+    if (res) {
       setMessage("Registration Successfully Done !!")
     }
   }
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
-      <img src={Image} alt="Registration" className="w-32 sm:w-40 mb-6" />
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-100 via-blue-50 to-white p-4">
+      <img src={Image} alt="Registration" className="w-40 h-40 rounded-xl shadow-md mb-3" />
 
-      <div className="bg-white shadow-2xl w-full max-w-xl rounded-3xl p-6">
+      <div className="bg-[#fcf7eb] shadow-2xl w-full max-w-xl rounded-3xl p-6">
+        <div className="text-center flex items-center gap-4 mb-5 justify-start">
+          <img src={Logo} alt="Logo" className="h-16 w-16 border-3 border-[#0E6BB0] object-contain bg-zinc-100 rounded-2xl" />
+          <div className='flex flex-col justify-start '>
+            <h2 className="text-3xl items-start flex justify-start text-black font-bold">Registration</h2>
+            <p className='text-zinc-600'>If Already Haven't an Account.</p>
+          </div>
+        </div>
         {/* Timeline */}
         <div className="flex justify-between items-center mb-8 relative">
-          {[1, 2, 3, 4, 5].map((i, idx) => (
+          {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="flex flex-col items-center relative">
               <div className={getStepStyle(i)}>
                 {i === 1 && <SlPhone size={22} color="#ffff" />}
@@ -97,7 +105,6 @@ const Registration = () => {
           ))}
         </div>
 
-        {/* Form with transition */}
         <form className="space-y-4 transition-all duration-500" onSubmit={handleRegistrationFormSubmit}>
           <AnimatePresence mode="wait">
             <motion.div
@@ -118,7 +125,7 @@ const Registration = () => {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value.trim())}
                     placeholder="Enter Phone Number"
-                    className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-400"
+                    className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-white"
                   />
                 </>
               )}
@@ -212,7 +219,7 @@ const Registration = () => {
           <button
             type="button"
             onClick={step < 5 ? nextStep : handleRegistrationFormSubmit}
-            className="w-full cursor-pointer bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-xl text-lg font-medium transition"
+            className="w-full cursor-pointer bg-[#fbc444] hover:bg-yellow-400 text-white py-3 rounded-xl text-lg font-medium transition"
           >
             {step < 5 ? 'Next' : 'Finish'}
           </button>
