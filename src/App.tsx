@@ -1,58 +1,79 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './Pages/Home';
+import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import AdminLanding from './Pages/AdminLanding';
 import AdminResources from './Pages/AdminResources';
+import Home from './Pages/Home';
+import Login from './Pages/Login';
 import Registration from './Pages/Registration';
 import Resources from './Pages/Resources';
-import Login from './Pages/Login';
-// import { useEffect, useState } from 'react';
-// import { useSelector } from 'react-redux';
-// import type { RootState } from './Redux/Store';
+import type { RootState } from './Redux/Store';
+
 const App = () => {
+  const [IsAdmin, setIsAdmin] = useState(false);
+  const [IsUser, setIsUser] = useState(false);
+  const [Checking, setChecking] = useState(true); 
+  const User = useSelector((state: RootState) => state.user.user);
 
-  // const [IsAdmin, setIsAdmin] = useState<boolean>(false);
-  // const [IsUser, setIsUser] = useState<boolean>(false);
-  // const User = useSelector((state: RootState) => state.user.user)
-  // useEffect(() => {
-  //   if ((User !== null && User.role === "USER" && localStorage.getItem("tabataToken"))) {
-  //     setIsAdmin(false);
-  //     setIsUser(true);
-  //   } else if ((User !== null && User.role === "ADMIN" && localStorage.getItem("tabataToken"))) {
-  //     setIsAdmin(true);
-  //     setIsUser(false);
-  //   } else if (User === null && !localStorage.getItem("tabataToken")) {
-  //     setIsAdmin(true);
-  //     setIsUser(false);
-  //   }
-  // }, [])
+  useEffect(() => {
+    const token = localStorage.getItem(import.meta.env.VITE_LOCAL_STORAGE_TOKEN);
 
-  
+    if (User && token) {
+      if (User.role === "USER") {
+        setIsUser(true);
+        setIsAdmin(false);
+      } else if (User.role === "ADMIN") {
+        setIsAdmin(true);
+        setIsUser(false);
+      }
+    } else if (!User && token) {
+      localStorage.removeItem(import.meta.env.VITE_LOCAL_STORAGE_TOKEN)
+      setIsAdmin(false);
+      setIsUser(false);
+    } else {
+      setIsAdmin(false);
+      setIsUser(false);
+    }
+
+    setChecking(false); 
+  }, [User]);
+
+  if (Checking) return null; 
+
   return (
     <Router>
       <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/resources" element={<Resources />} />
-      <Route path="/admin/dashbord" element={<AdminLanding />} />
-      <Route path="/admin/resources" element={<AdminResources />} />
-      <Route path="/login" element={<Login />} />
-      <Route path='/registration' element={<Registration />} />
+        {/* USER Routes */}
+        {IsUser && (
+          <>
+            <Route path="/" element={<Home />} />
+            <Route path="/resources" element={<Resources />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </>
+        )}
 
-        {/* {IsUser || (!IsUser && !IsAdmin)  && <>
-        <Route path="/" element={<Home />} />
-          <Route path="/resources" element={<Resources />} />
-        </>
-        }
-        {IsAdmin && <>
-          <Route path="/admin/dashbord" element={<AdminLanding />} />
-          <Route path="/admin/resources" element={<AdminResources />} />
-        </>}
-        {!IsAdmin && !IsUser && <>
-          <Route path="/login" element={<Login />} />
-          <Route path='/registration' element={<Registration />} />
-        </>} */}
+        {/* ADMIN Routes */}
+        {IsAdmin && (
+          <>
+            <Route path="/admin/dashbord" element={<AdminLanding />} />
+            <Route path="/admin/resources" element={<AdminResources />} />
+            <Route path="*" element={<Navigate to="/admin/dashbord" replace />} />
+          </>
+        )}
+
+        {/* Unauthenticated - public */}
+        {!IsAdmin && !IsUser && (
+          <>
+            <Route path="/" element={<Home />} />
+            <Route path="/resources" element={<Resources />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/registration" element={<Registration />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </>
+        )}
       </Routes>
     </Router>
-  )
-}
+  );
+};
 
-export default App
+export default App;

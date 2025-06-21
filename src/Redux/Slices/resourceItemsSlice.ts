@@ -42,6 +42,15 @@ const resourceItemsSlice = createSlice({
                 list[0] = item;
             }
         },
+        appendResourceItem: (state, action: PayloadAction<{ key: string; item: ResourceItem }>) => {
+            const { key, item } = action.payload;
+            if (state.resourceItemsMap[key]) {
+                state.resourceItemsMap[key].push(item);
+            } else {
+                state.resourceItemsMap[key] = [item];
+            }
+        }
+
     },
 });
 
@@ -49,7 +58,8 @@ export const {
     setResourceItemsMap,
     clearResourceItemsMap,
     removeResourceItemById,
-    replaceFirstIfIdMatches
+    replaceFirstIfIdMatches,
+    appendResourceItem
 } = resourceItemsSlice.actions;
 
 export default resourceItemsSlice.reducer;

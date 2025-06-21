@@ -8,9 +8,9 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { CreateResource } from "../APIs/PostAPIs";
+import { CreateResource } from "../../APIs/PostAPIs";
 
-const CreateResourceDialog = ({ onNext }:{ onNext: (data: any) => void}) => {
+const CreateResourceDialog = ({ onClose}:{ onClose: () => void;}) => {
   const [open, setOpen] = useState(true);
   const [languageDialog, setLanguageDialog] = useState("");
   const [className, setClassName] = useState("");
@@ -22,15 +22,9 @@ const CreateResourceDialog = ({ onNext }:{ onNext: (data: any) => void}) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Call your CreateLanguage or submit function here
-    console.log({ languageDialog, className, subj: subject, dispatch, setMessage });
 
-    const res = await CreateResource({ lan: languageDialog, className, subj: subject, dispatch, setMessage })
-    if (res) {
-      console.log("ya That's Work !!");
-      onNext(res);
-    }
-    // handleClose();
+    await CreateResource({ lan: languageDialog, className, subj: subject, dispatch, setMessage })
+    onClose()
   };
 
   return (

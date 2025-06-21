@@ -224,12 +224,12 @@ const Registration = () => {
             {step < 5 ? 'Next' : 'Finish'}
           </button>
 
-          <span className='flex justify-center w-full items-center gap-2'>
-            Already Have an Account,
-            <button className='text-blue-800 cursor-pointer' onClick={handleLoginRequest}>Login</button>
-          </span>
-        </form>
 
+        </form>
+        <span className='flex justify-center mt-6 w-full items-center gap-2'>
+          Already Have an Account,
+          <button className='text-blue-800 cursor-pointer' onClick={handleLoginRequest}>Login</button>
+        </span>
       </div>
     </div>
   )

@@ -1,45 +1,74 @@
 import { createSlice } from "@reduxjs/toolkit";
-import type { PayloadAction } from '@reduxjs/toolkit';
+import type { PayloadAction } from "@reduxjs/toolkit";
+
 
 interface Entry {
   _id: string;
   type: string;
 }
 
+interface EntriesMap {
+  [resourceId: string]: Entry[];
+}
+
 interface EntriesState {
-  entries: Entry[];
+  entriesMap: EntriesMap;
 }
 
 const initialState: EntriesState = {
-  entries: [],
+  entriesMap: {},
 };
 
 const entriesSlice = createSlice({
   name: "entries",
   initialState,
   reducers: {
-    setEntries: (state, action: PayloadAction<Entry[]>) => {
-      state.entries = action.payload;
+    setEntriesForResource: (
+      state,
+      action: PayloadAction<{ resourceId: string; entries: Entry[] }>
+    ) => {
+      state.entriesMap[action.payload.resourceId] = action.payload.entries;
     },
-    clearEntries: (state) => {
-      state.entries = [];
-    },
-    removeEntryById: (state, action: PayloadAction<string>) => {
-      state.entries = state.entries.filter(entry => entry._id !== action.payload);
-    },
-    replaceFirstIfIdMatches: (state, action: PayloadAction<Entry>) => {
-      if (state.entries.length && state.entries[0]._id === action.payload._id) {
-        state.entries[0] = action.payload;
+
+    appendEntryToResource: (
+      state,
+      action: PayloadAction<{ resourceId: string; entry: Entry }>
+    ) => {
+      const { resourceId, entry } = action.payload;
+      if (!state.entriesMap[resourceId]) {
+        state.entriesMap[resourceId] = [entry];
+      } else {
+        const exists = state.entriesMap[resourceId].some(e => e._id === entry._id);
+        if (!exists) {
+          state.entriesMap[resourceId].push(entry);
+        }
       }
     },
+
+    removeEntryFromResource: (
+      state,
+      action: PayloadAction<{ resourceId: string; entryId: string }>
+    ) => {
+
+      const { resourceId, entryId } = action.payload;
+      if (state.entriesMap[resourceId]) {
+        state.entriesMap[resourceId] = state.entriesMap[resourceId].filter(
+          entry => entry._id !== entryId
+        );
+      }
+    },
+
+    clearAllEntries: (state) => {
+      state.entriesMap = {};
+    }
   },
 });
 
 export const {
-  setEntries,
-  clearEntries,
-  removeEntryById,
-  replaceFirstIfIdMatches
+  setEntriesForResource,
+  appendEntryToResource,
+  removeEntryFromResource,
+  clearAllEntries
 } = entriesSlice.actions;
 
 export default entriesSlice.reducer;

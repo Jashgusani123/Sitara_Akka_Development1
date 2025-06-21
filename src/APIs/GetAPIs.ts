@@ -1,6 +1,6 @@
 import axios from "axios";
 import type { Dispatch as ReduxDispatch } from "redux";
-import { setEntries } from "../Redux/Slices/entriesSlice";
+import { setEntriesForResource } from "../Redux/Slices/entriesSlice";
 import { setGottedLanguages } from "../Redux/Slices/languageSlice";
 import { setResourceItemsMap } from "../Redux/Slices/resourceItemsSlice";
 import { setResources } from "../Redux/Slices/resourcesSlice";
@@ -56,7 +56,7 @@ export const GetEntries = async ({
     if (response.statusText !== "OK") {
       return false;
     }
-    dispatch(setEntries(response.data.entries));
+    dispatch(setEntriesForResource({entries:response.data.entries , resourceId}));
     return true;
   } catch (error) {
     console.error("GetEntries error:", error);
@@ -76,7 +76,7 @@ export const GetSubdata = async ({
     if (response.statusText !== "OK") {
       return false;
     }
-    dispatch(setSubDataMap(response.data.subData));
+    dispatch(setSubDataMap({items:response.data.subData ,entryId:resourceDataEntryId }));
     return true;
   } catch (error) {
     console.error("GetSubdata error:", error);
@@ -96,7 +96,9 @@ export const GetResourceItems = async ({
     if (response.statusText !== "OK") {
       return false;
     }
-    dispatch(setResourceItemsMap({ key: subDataId, items: response.data.items }));
+    if( Array.isArray(response.data.items) && response.data.items.length !== 0 ){
+      dispatch(setResourceItemsMap({ key: subDataId, items: response.data.items }));
+    }
     return true;
   } catch (error) {
     console.error("GetResourceItems error:", error);

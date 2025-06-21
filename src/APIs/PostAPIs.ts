@@ -1,11 +1,11 @@
 import axios from "axios";
 import type { Dispatch, SetStateAction } from "react";
 import type { Dispatch as ReduxDispatch } from "redux";
-import { removeResourceById, setResources } from "../Redux/Slices/resourcesSlice";
+import { appendEntryToResource, removeEntryFromResource } from "../Redux/Slices/entriesSlice";
+import { appendResourceItem, removeResourceItemById } from "../Redux/Slices/resourceItemsSlice";
+import { appendResource, removeResourceById } from "../Redux/Slices/resourcesSlice";
+import { appendSubdata, removeSubDataById } from "../Redux/Slices/subDataSlice";
 import { setUser } from "../Redux/Slices/userSlice";
-import { removeResourceItemById, setResourceItemsMap } from "../Redux/Slices/resourceItemsSlice";
-import { removeEntryById, setEntries } from "../Redux/Slices/entriesSlice";
-import { removeSubDataById, setSubDataMap } from "../Redux/Slices/subDataSlice";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
@@ -23,7 +23,7 @@ export const CreateResource = async ({
     setMessage: Dispatch<SetStateAction<string>>
 }) => {
     try {
-        const token = localStorage.getItem("tabataToken");
+        const token = localStorage.getItem(import.meta.env.VITE_LOCAL_STORAGE_TOKEN);
         const response = await axios(`${BASE_URL}/api/resources`, {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -36,7 +36,7 @@ export const CreateResource = async ({
         }
 
         setMessage(response.data.message);
-        dispatch(setResources(response.data.resource))
+        dispatch(appendResource(response.data.resource))
 
         return response.data.resource;
     } catch (error) {
@@ -56,7 +56,7 @@ export const createResourceDataEntry = async ({
 
 }) => {
     try {
-        const token = localStorage.getItem("tabataToken");
+        const token = localStorage.getItem(import.meta.env.VITE_LOCAL_STORAGE_TOKEN);
         const response = await axios.post(
             `${BASE_URL}/api/resource-data-entries`,
             { type, resourceId },
@@ -68,7 +68,7 @@ export const createResourceDataEntry = async ({
         );
 
         setMessage(response.data.message);
-        dispatch(setEntries(response.data.resourceEntry))
+        dispatch(appendEntryToResource({entry:response.data.resourceEntry , resourceId}))
         return response.data.resourceEntry;
     } catch (err: any) {
         setMessage("❌ " + (err.response?.data?.message || "Failed to create entry"));
@@ -82,6 +82,7 @@ export const createSubData = async ({
     resourceDataEntryId,
     setMessage,
     dispatch,
+    link
 }: {
     file?: File; // optional now
     name: string;
@@ -89,20 +90,25 @@ export const createSubData = async ({
     resourceDataEntryId: string;
     setMessage: (msg: string) => void;
     dispatch: ReduxDispatch;
+    link:string | undefined
 }) => {
     try {
-        const token = localStorage.getItem("tabataToken");
+        const token = localStorage.getItem(import.meta.env.VITE_LOCAL_STORAGE_TOKEN);
         const formData = new FormData();
 
         formData.append("name", name);
         formData.append("datatype", datatype);
         formData.append("resourceDataEntryId", resourceDataEntryId);
+        if(link){
+            formData.append("link", link);
+        }
 
         if (datatype === "file") {
             if (!file) {
                 setMessage("❌ File is required for datatype 'file'");
                 return null;
             }
+            
             formData.append("file", file);
         }
 
@@ -112,11 +118,10 @@ export const createSubData = async ({
                 "Content-Type": "multipart/form-data",
             },
         });
-        console.log(response);
 
 
         setMessage(response.data.message);
-        dispatch(setSubDataMap(response.data.subData));
+        dispatch(appendSubdata(response.data.subData));
         return response.data.subData;
     } catch (err: any) {
         console.log(err);
@@ -135,7 +140,7 @@ export const createResourceItem = async ({
     file,
     link,
     setMessage,
-    dispatch
+    dispatch,
 }: {
     name: string;
     icon: string;
@@ -144,10 +149,10 @@ export const createResourceItem = async ({
     file?: File;
     link?: string;
     setMessage: (msg: string) => void;
-    dispatch: ReduxDispatch
+    dispatch: ReduxDispatch,
 }) => {
     try {
-        const token = localStorage.getItem("tabataToken");
+        const token = localStorage.getItem(import.meta.env.VITE_LOCAL_STORAGE_TOKEN);
         const formData = new FormData();
         formData.append("name", name);
         formData.append("icon", icon);
@@ -164,14 +169,14 @@ export const createResourceItem = async ({
         });
 
         setMessage(response.data.message);
-        dispatch(setResourceItemsMap(response.data.resourceItem))
+        dispatch(appendResourceItem({ key: subDataId, item: response.data.resourceItem }));
         return response.data.resourceItem;
     } catch (err: any) {
         setMessage("❌ " + (err.response?.data?.message || "Failed to create Resource Item"));
         return null;
     }
 };
-export const deleteResource = async({id , at ,dispatch ,key}:{id:string , at:string , dispatch:ReduxDispatch , key?:string})=>{
+export const deleteResource = async({id , at ,dispatch ,key }:{id:string , at:string , dispatch:ReduxDispatch , key?:string })=>{
     const token = localStorage.getItem('tabataToken');
     const response = await axios.delete(`${BASE_URL}/api/${at}/${id}`, {
         headers: {
@@ -184,17 +189,16 @@ export const deleteResource = async({id , at ,dispatch ,key}:{id:string , at:str
         return false;
     }
     if(at === 'resources'){
-
         dispatch(removeResourceById(id));
-    }else if(at === 'resource-data-entries'){
-        dispatch(removeEntryById(id))
-    }else if(at === 'subdata'){
-        dispatch(removeSubDataById(id));
+    }else if(at === 'resource-data-entries' && key){
+        dispatch(removeEntryFromResource({entryId:id ,resourceId:key}))
+    }else if(at === 'subdata' && key){
+        dispatch(removeSubDataById({id , entryId:key}));
     }else if (at === 'resource-items'){
         dispatch(removeResourceItemById({key:key! ,id}));
     }
      
-}
+};
 
 
 export const RegistrationUser = async ({
@@ -215,7 +219,7 @@ export const RegistrationUser = async ({
     dispatch: ReduxDispatch;
 }) => {
     try {
-        const response = await axios.post(`https://backend.barabaricollective.org/sitara/api/register`, {
+        const response = await axios.post(`${BASE_URL}/api/register`, {
             phoneNumber: phone,
             firstName,
             lastName,
@@ -239,7 +243,7 @@ export const RegistrationUser = async ({
 
 export const LoginUser = async ({ phone }: { phone: string }) => {
     try {
-        const response = await axios.post(`https://backend.barabaricollective.org/sitara/api/login`, {
+        const response = await axios.post(`${BASE_URL}/api/login`, {
             phoneNumber: phone,
 
         });
@@ -252,9 +256,10 @@ export const LoginUser = async ({ phone }: { phone: string }) => {
         const { token } = response.data;
 
         localStorage.setItem('tabataToken', token);
-
+        // dispatch(setUser(response.data.user))
         return true;
     } catch (error: any) {
+        // setError("Account Not Available..")
         console.error("Login failed:", error?.response?.data || error.message);
         return false;
     }

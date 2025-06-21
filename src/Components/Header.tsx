@@ -10,20 +10,17 @@ import type { RootState } from "../Redux/Store";
 const Header = ({ IsAdmin }: { IsAdmin?: boolean }) => {
   const [selectLangBox, setSelectLangBox] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [Languages] = useSelector((state: RootState) => state.language.selectedLanguage);
+  const [gottedLanguages] = useSelector((state: RootState) => state.language.selectedLanguage);
   const location = window.location.pathname;
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const handleClickSelectLanguage = async () => {
     setSelectLangBox(!selectLangBox);
-    if (Languages.length === 0) {
+    if (gottedLanguages.length === 0 || gottedLanguages === undefined) {
       GetLanguages({ dispatch });
     }
   };
-
-  console.log(IsAdmin);
-
   return (
     <header className="home_navbar flex justify-center md:justify-between lg:justify-between gap-3 flex-wrap w-full p-4">
       <motion.div
@@ -35,8 +32,10 @@ const Header = ({ IsAdmin }: { IsAdmin?: boolean }) => {
           const isAdmin = location.split("/")[1] === "admin";
           if (isAdmin) {
             navigate("/");
-          } else {
-            navigate("/admin/dashbord")
+          } else if(!IsAdmin){
+            navigate("/")
+          }else{
+            navigate("/admin/dashbord");
           }
         }}
       >

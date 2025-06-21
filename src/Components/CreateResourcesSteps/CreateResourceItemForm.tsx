@@ -9,9 +9,14 @@ import {
   MenuItem
 } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { createResourceItem } from "../APIs/PostAPIs"; // adjust path as needed
+import { createResourceItem } from "../../APIs/PostAPIs";
 
-const CreateResourceItemForm = ({ subDataId, onClose }: { subDataId: string; onClose: (data?: any) => void }) => {
+interface Props {
+  subDataId: string;
+  onClose: () => void; 
+}
+
+const CreateResourceItemForm = ({ subDataId, onClose }: Props) => {
   const [name, setName] = useState("");
   const [icon, setIcon] = useState("");
   const [type, setType] = useState<"file" | "link">("file");
@@ -19,13 +24,12 @@ const CreateResourceItemForm = ({ subDataId, onClose }: { subDataId: string; onC
   const [link, setLink] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-
   const dispatch = useDispatch();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setLoading(true);
+
     const result = await createResourceItem({
       name,
       icon,
@@ -45,12 +49,13 @@ const CreateResourceItemForm = ({ subDataId, onClose }: { subDataId: string; onC
       setIcon("");
       setLink("");
       setFile(null);
-      if (onClose) onClose(result); // Optionally pass resourceItem
+
+      onClose();
     }
   };
 
   return (
-    <Dialog open onClose={() => onClose?.()}>
+    <Dialog open onClose={onClose}>
       <form onSubmit={handleSubmit}>
         <DialogTitle>Create Resource Item</DialogTitle>
         <DialogContent className="flex flex-col gap-4 mt-2">
@@ -76,12 +81,14 @@ const CreateResourceItemForm = ({ subDataId, onClose }: { subDataId: string; onC
             <TextField label="Link" fullWidth required value={link} onChange={(e) => setLink(e.target.value)} />
           )}
         </DialogContent>
+
         <DialogActions>
-          <Button onClick={() => onClose?.()}>Cancel</Button>
+          <Button onClick={onClose}>Cancel</Button> 
           <Button type="submit" variant="contained" disabled={loading}>
             {loading ? "Creating..." : "Create"}
           </Button>
         </DialogActions>
+
         <p className="px-4 pb-4 text-sm">{message}</p>
       </form>
     </Dialog>

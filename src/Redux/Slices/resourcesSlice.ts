@@ -34,8 +34,18 @@ const resourceSlice = createSlice({
         state.resources[0] = action.payload;
       }
     },
+    appendResource: (state, action: PayloadAction<Resource>) => {
+      const newResource = action.payload;
+
+      const langExists = state.resources.some(r => r.lan === newResource.lan);
+
+      if (langExists) {
+        state.resources.push(newResource);
+      }
+    }
+
   },
 });
 
-export const { setResources, clearResources , removeResourceById ,replaceFirstIfIdMatches} = resourceSlice.actions;
+export const { setResources, clearResources, removeResourceById, replaceFirstIfIdMatches, appendResource } = resourceSlice.actions;
 export default resourceSlice.reducer;
