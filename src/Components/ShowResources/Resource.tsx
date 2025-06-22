@@ -1,14 +1,15 @@
+import ControlPointIcon from '@mui/icons-material/ControlPoint';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { AnimatePresence, motion } from "framer-motion";
+import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { GetEntries } from '../../APIs/GetAPIs';
-import { AnimatePresence, motion } from "framer-motion";
-import ControlPointIcon from '@mui/icons-material/ControlPoint';
-import { useState } from 'react';
-import { ResourceDataEntryDialog } from '../CreateResourcesSteps/ResourceDataEntryDialog';
 import type { RootState } from '../../Redux/Store';
+import CreateResourceDialog from '../CreateResourcesSteps/CreateResourceDialog';
+import { ResourceDataEntryDialog } from '../CreateResourcesSteps/ResourceDataEntryDialog';
 import Loding from '../Loding';
 import ResourceEntry from './ResourceEntry';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 interface Props {
   expandedSubject?: string | null,
   setExpandedSubject: (id: string | null) => void,
@@ -37,12 +38,13 @@ function Resource({
   const [showForm, setShowForm] = useState(false);
   const [currentSubId, setCurrentSubId] = useState<string | null>(null);
   const [showLoginWarning, setShowLoginWarning] = useState(false);
+  const [showFormForEdit, setshowFormForEdit] = useState(false)
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const entriesMap = useSelector((state: RootState) => state.entries.entriesMap);
-  const user = useSelector((state: RootState) => state.user.user); // adjust if your user path differs
+  const user = useSelector((state: RootState) => state.user.user); 
 
   const handleEntriesRequest = (resourceId: string, subjectName: string) => {
     const token = localStorage.getItem(import.meta.env.VITE_LOCAL_STORAGE_TOKEN);
@@ -74,7 +76,9 @@ function Resource({
     setCurrentSubId(resourceId);
     setShowForm(true);
   };
-
+  const handleRequestEdit = () => {
+    setshowFormForEdit(true)
+  }
   const entryList = entriesMap[id];
 
   return (
@@ -88,17 +92,17 @@ function Resource({
         </span>
         {isAdmin && (
           <div className="flex gap-2">
-            <button className="bg-green-400 text-white rounded-xl px-4 py-1 hover:bg-green-500 text-sm transition">
+            <button className="bg-green-400 text-white rounded-xl px-4 py-1 cursor-pointer hover:bg-green-500 text-sm transition" onClick={handleRequestEdit}>
               Edit
             </button>
             <button
-              className="bg-red-400 text-white rounded-xl px-4 py-1 hover:bg-red-500 text-sm transition"
+              className="bg-red-400 text-white rounded-xl px-4 py-1 cursor-pointer hover:bg-red-500 text-sm transition"
               onClick={() => handleDelete({ id, at: "resources" })}
             >
               Delete
             </button>
             <button onClick={() => handleAddEntry(id)}>
-              <ControlPointIcon style={{ color: "black" }} />
+              <ControlPointIcon style={{ color: "black" , cursor:"pointer" }} />
             </button>
           </div>
         )}
@@ -113,28 +117,31 @@ function Resource({
             transition={{ duration: 0.3 }}
             className="mt-4 space-y-3"
           >
-            {entryList && entryList.length !== 0 ? (
-              entryList.map((entry) => (
-                <div
-                  key={entry._id}
-                  className="flex flex-col gap-2 bg-zinc-100 px-4 py-3 rounded-lg shadow-sm"
-                >
-                  <ResourceEntry
-                    expandedEntryId={expandedEntryId || ""}
-                    setExpandedEntryId={setExpandedEntryId}
-                    setExpandedSubId={setExpandedSubId}
-                    parentId={id}
-                    id={entry._id}
-                    isAdmin={!!isAdmin}
-                    expandedSubId={expandedSubId}
-                    type={entry.type}
-                    handleDelete={handleDelete}
-                  />
-                </div>
-              ))
-            ) : (
-              <Loding />
-            )}
+            {entryList?.length !== 0 ? <>
+              {entryList ? (
+                entryList.map((entry) => (
+                  <div
+                    key={entry._id}
+                    className="flex flex-col gap-2 bg-zinc-100 px-4 py-3 rounded-lg shadow-sm"
+                  >
+                    <ResourceEntry
+                      expandedEntryId={expandedEntryId || ""}
+                      setExpandedEntryId={setExpandedEntryId}
+                      setExpandedSubId={setExpandedSubId}
+                      parentId={id}
+                      id={entry._id}
+                      isAdmin={!!isAdmin}
+                      expandedSubId={expandedSubId}
+                      type={entry.type}
+                      handleDelete={handleDelete}
+                    />
+                  </div>
+                ))
+              ) : (
+                <Loding />
+              )}
+            </> : <p className='text-zinc-500 text-sm '>Not Added Yet.</p>}
+
           </motion.div>
         )}
       </AnimatePresence>
@@ -146,10 +153,18 @@ function Resource({
         />
       )}
 
+      {showFormForEdit && (
+        <CreateResourceDialog
+          handleEditRequest={true}
+          resourceId={id}
+          onClose={() => setshowFormForEdit(false)}
+        />
+      )}
+
       {showLoginWarning && (
         <div className="fixed top-0 left-0 w-full h-full bg-black/40 flex items-center justify-center z-50">
           <div className="bg-amber-100 rounded-lg shadow-lg p-6 text-center">
-            <h2 className="text-xl font-semibold mb-2 flex items-center gap-1 "><InfoOutlinedIcon fontSize='large'/> Login Required</h2>
+            <h2 className="text-xl font-semibold mb-2 flex items-center gap-1 "><InfoOutlinedIcon fontSize='large' /> Login Required</h2>
             <p className="text-gray-600 mb-4">You need to log in to view this content.</p>
             <button
               onClick={() => navigate('/login')}

@@ -5,6 +5,7 @@ interface SubData {
   _id: string;
   name: string;
   datatype: string;
+  link?: string;
 }
 
 interface SubDataMap {
@@ -35,11 +36,14 @@ const subDataSlice = createSlice({
         state.subDataMap[entryId] = state.subDataMap[entryId].filter(item => item._id !== id);
       }
     },
-    replaceFirstIfIdMatches: (state, action: PayloadAction<{ entryId: string; item: SubData }>) => {
+    updateSubDataById: (state, action: PayloadAction<{ entryId: string; item: SubData }>) => {
       const { entryId, item } = action.payload;
       const list = state.subDataMap[entryId];
-      if (list && list.length && list[0]._id === item._id) {
-        list[0] = item;
+      if (list) {
+        const index = list.findIndex(sub => sub._id === item._id);
+        if (index !== -1) {
+          list[index] = item;
+        }
       }
     },
     appendSubdata: (state, action: PayloadAction<{ entryId: string; item: SubData }>) => {
@@ -57,7 +61,7 @@ export const {
   setSubDataMap,
   clearSubDataMap,
   removeSubDataById,
-  replaceFirstIfIdMatches,
+  updateSubDataById,
   appendSubdata
 } = subDataSlice.actions;
 

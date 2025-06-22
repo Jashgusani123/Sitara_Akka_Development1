@@ -48,11 +48,12 @@ const ResourcesMain = ({ isAdmin }: { isAdmin?: boolean }) => {
     const handleDelete = ({id , at  , key}:{id:string , at:string , key?:string })=>{
         deleteResource({id , at , dispatch , key })
     }
+
     return (
         <main className="w-full h-auto p-4 bg-[#FAC54D] rounded-2xl">
             <div className="resources_heading w-full flex bg-white mb-4 rounded-[10px] items-center justify-between">
                 <h2 className="text-3xl font-bold text-gray-800 px-2">Resources</h2>
-                {isAdmin && <button className={`bg-[#0e6bb0] border-2 border-white text-white rounded-[10px] text-2xl p-2 `} disabled={language ?false:true} onClick={handleCreateResourceBTN}>
+                {isAdmin && <button className={`bg-[#0e6bb0] border-2 border-white cursor-pointer text-white rounded-[10px] text-2xl p-2 `} disabled={language ?false:true} onClick={handleCreateResourceBTN}>
                     Create Resource
                 </button>}
             </div>
@@ -60,7 +61,8 @@ const ResourcesMain = ({ isAdmin }: { isAdmin?: boolean }) => {
             <section className="bg-[#0E6BB0] h-auto rounded-2xl p-4">
                 <div className="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden">
                     <ul className="divide-y h-full flex justify-evenly flex-col divide-gray-200">
-                        {allSubjects.length > 0 ? allSubjects.map((i) => (
+                        {allSubjects.length > 0 ? 
+                        allSubjects.map((i) => (
                             <li key={i._id} className="p-4">
                                 
                                 <Resource expandedSubject={expandedSubject} setExpandedSubject={setExpandedSubject} setExpandedEntryId={setExpandedEntryId} setExpandedSubId={setExpandedSubId} id={i._id} isAdmin={isAdmin} subject={i.subj} handleDelete={handleDelete} expandedEntryId={expandedEntryId} expandedSubId={expandedSubId}/>

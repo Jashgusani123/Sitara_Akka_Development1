@@ -57,6 +57,19 @@ const entriesSlice = createSlice({
         );
       }
     },
+    updateEntryForResource: (
+      state,
+      action: PayloadAction<{ resourceId: string; entry: Entry }>
+    ) => {
+      const { resourceId, entry } = action.payload;
+      const entries = state.entriesMap[resourceId];
+      if (entries) {
+        const index = entries.findIndex(e => e._id === entry._id);
+        if (index !== -1) {
+          entries[index] = entry;
+        }
+      }
+    },
 
     clearAllEntries: (state) => {
       state.entriesMap = {};
@@ -68,7 +81,8 @@ export const {
   setEntriesForResource,
   appendEntryToResource,
   removeEntryFromResource,
-  clearAllEntries
+  clearAllEntries,
+  updateEntryForResource
 } = entriesSlice.actions;
 
 export default entriesSlice.reducer;

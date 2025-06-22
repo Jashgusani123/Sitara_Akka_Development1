@@ -5,9 +5,30 @@ import { setGottedLanguages } from "../Redux/Slices/languageSlice";
 import { setResourceItemsMap } from "../Redux/Slices/resourceItemsSlice";
 import { setResources } from "../Redux/Slices/resourcesSlice";
 import { setSubDataMap } from "../Redux/Slices/subDataSlice";
+import { setUser } from "../Redux/Slices/userSlice";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
+export const GetUser = async ({ dispatch }:{dispatch:ReduxDispatch}) => {
+  const token = localStorage.getItem(import.meta.env.VITE_LOCAL_STORAGE_TOKEN)
+  try {
+    const response = await axios(`${BASE_URL}/api/user`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (response.status !== 200) {
+      return false;
+    }
+    dispatch(setUser(response.data.user))
+    return true;
+  }catch(error){
+    console.log("Error while Fetch user: ", error);
+    
+  }
+
+}
 export const GetLanguages = async ({
   dispatch,
 }: {
@@ -56,7 +77,7 @@ export const GetEntries = async ({
     if (response.statusText !== "OK") {
       return false;
     }
-    dispatch(setEntriesForResource({entries:response.data.entries , resourceId}));
+    dispatch(setEntriesForResource({ entries: response.data.entries, resourceId }));
     return true;
   } catch (error) {
     console.error("GetEntries error:", error);
@@ -76,7 +97,7 @@ export const GetSubdata = async ({
     if (response.statusText !== "OK") {
       return false;
     }
-    dispatch(setSubDataMap({items:response.data.subData ,entryId:resourceDataEntryId }));
+    dispatch(setSubDataMap({ items: response.data.subData, entryId: resourceDataEntryId }));
     return true;
   } catch (error) {
     console.error("GetSubdata error:", error);
@@ -96,7 +117,7 @@ export const GetResourceItems = async ({
     if (response.statusText !== "OK") {
       return false;
     }
-    if( Array.isArray(response.data.items) && response.data.items.length !== 0 ){
+    if (Array.isArray(response.data.items) && response.data.items.length !== 0) {
       dispatch(setResourceItemsMap({ key: subDataId, items: response.data.items }));
     }
     return true;

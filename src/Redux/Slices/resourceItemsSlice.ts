@@ -5,6 +5,7 @@ interface ResourceItem {
     _id: string;
     name: string;
     type: string;
+    link?: string;
 }
 
 interface ResourceItemsMap {
@@ -35,11 +36,17 @@ const resourceItemsSlice = createSlice({
                 state.resourceItemsMap[key] = state.resourceItemsMap[key].filter(item => item._id !== id);
             }
         },
-        replaceFirstIfIdMatches: (state, action: PayloadAction<{ key: string; item: ResourceItem }>) => {
+        updateResourceItemById: (
+            state,
+            action: PayloadAction<{ key: string; item: ResourceItem }>
+        ) => {
             const { key, item } = action.payload;
             const list = state.resourceItemsMap[key];
-            if (list && list.length && list[0]._id === item._id) {
-                list[0] = item;
+            if (list) {
+                const index = list.findIndex(resource => resource._id === item._id);
+                if (index !== -1) {
+                    list[index] = item;
+                }
             }
         },
         appendResourceItem: (state, action: PayloadAction<{ key: string; item: ResourceItem }>) => {
@@ -58,7 +65,7 @@ export const {
     setResourceItemsMap,
     clearResourceItemsMap,
     removeResourceItemById,
-    replaceFirstIfIdMatches,
+    updateResourceItemById,
     appendResourceItem
 } = resourceItemsSlice.actions;
 

@@ -7,6 +7,7 @@ import type { RootState } from "../../Redux/Store";
 import CreateResourceItemForm from "../CreateResourcesSteps/CreateResourceItemForm";
 import Loding from "../Loding";
 import ResourceItem from "./ResourceItem";
+import { SubDataUploadDialog } from '../CreateResourcesSteps/SubDataUploadDialog';
 
 interface Props {
     isArray?: boolean | undefined;
@@ -24,8 +25,9 @@ interface Props {
         at: string;
         key?: string;
     }) => void;
-    parentId:string;
-    type:string
+    parentId: string;
+    type: string;
+    link: string | undefined
 }
 
 const ResourceSubdata = ({
@@ -37,10 +39,12 @@ const ResourceSubdata = ({
     subject,
     handleDelete,
     type,
-    parentId
+    parentId,
+    link
 }: Props) => {
     const [showForm, setShowForm] = useState(false);
     const [currentSubId, setCurrentSubId] = useState<string | null>(null);
+    const [showFormForEdit, setshowFormForEdit] = useState(false);
 
     const resourceItemsMap = useSelector(
         (state: RootState) => state.resourceItems.resourceItemsMap
@@ -79,36 +83,48 @@ const ResourceSubdata = ({
     return (
         <>
             <div className="flex justify-between items-center">
-                <div
-                    className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer"
-                    onClick={() =>
-                        handleResourceItemsRequest({
-                            isArray,
-                            isSubExpanded,
-                            subDataId: id,
-                        })
-                    }
-                >
-                    {isArray && (
-                        <span className="text-xs">{isSubExpanded ? "▼" : "►"}</span>
-                    )}
-                    <span>{subject}</span>
-                    <span>({type})</span>
-                </div>
+                {type === "link" && link ? (
+                    <a
+                        href={link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer"
+                    >
+                        <span>{subject}</span>
+                        <span>({type})</span>
+                    </a>
+                ) : (
+                    <div
+                        className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer"
+                        onClick={() =>
+                            handleResourceItemsRequest({
+                                isArray,
+                                isSubExpanded,
+                                subDataId: id,
+                            })
+                        }
+                    >
+                        {isArray && (
+                            <span className="text-xs">{isSubExpanded ? "▼" : "►"}</span>
+                        )}
+                        <span>{subject}</span>
+                        <span>({type})</span>
+                    </div>
+                )}
 
                 {isAdmin && (
                     <div className="flex gap-2">
                         <button
                             className="bg-green-200 rounded px-2 py-1 text-xs cursor-pointer hover:bg-green-300"
-                            onClick={(e) => e.stopPropagation()} 
+                            onClick={() => setshowFormForEdit(true)}
                         >
                             Edit
                         </button>
                         <button
                             className="bg-red-200 rounded px-2 py-1 text-xs cursor-pointer hover:bg-red-300"
                             onClick={(e) => {
-                                e.stopPropagation(); 
-                                handleDelete({ id: id, at: "subdata" , key:parentId});
+                                e.stopPropagation();
+                                handleDelete({ id: id, at: "subdata", key: parentId });
                             }}
                         >
                             Delete
@@ -117,11 +133,11 @@ const ResourceSubdata = ({
                             <button
                                 className="cursor-pointer"
                                 onClick={(e) => {
-                                    e.stopPropagation(); 
+                                    e.stopPropagation();
                                     handleAddEntry(id);
                                 }}
                             >
-                                <ControlPointIcon style={{ color: "black", cursor:"pointer" }}  />
+                                <ControlPointIcon style={{ color: "black", cursor: "pointer" }} />
                             </button>
                         )}
                     </div>
@@ -139,25 +155,26 @@ const ResourceSubdata = ({
                         className="mt-2 bg-zinc-100 rounded p-2 text-sm text-gray-600"
                     >
                         <ul className="space-y-1">
-                            {resourceItemsMap[id].length !== 0 ? <> 
-                            {resourceItemsMap[id].length > 0 ? (
-                                resourceItemsMap[id].map((item) => (
-                                    <ResourceItem
-                                        key={item._id}
-                                        id={item._id}
-                                        name={item.name}
-                                        isAdmin={isAdmin}
-                                        type={item.type}
-                                        handleDelete={handleDelete}
-                                        subjectId={id}
-                                    />
-                                ))
-                            ) : (
-                                <Loding />
-                            )}
-                            
-                            </> :  <p className="text-zinc-500 text-sm">Not Added Yet.</p>}
-                            
+                            {resourceItemsMap[id].length !== 0 ? <>
+                                {resourceItemsMap[id].length > 0 ? (
+                                    resourceItemsMap[id].map((item) => (
+                                        <ResourceItem
+                                            key={item._id}
+                                            id={item._id}
+                                            name={item.name}
+                                            link={item.link}
+                                            isAdmin={isAdmin}
+                                            type={item.type}
+                                            handleDelete={handleDelete}
+                                            parentId={id}
+                                        />
+                                    ))
+                                ) : (
+                                    <Loding />
+                                )}
+
+                            </> : <p className="text-zinc-500 text-sm">Not Added Yet.</p>}
+
                         </ul>
                     </motion.div>
                 )}
@@ -174,7 +191,16 @@ const ResourceSubdata = ({
                     onClose={() => {
                         setShowForm(false)
                     }
-                    } 
+                    }
+                />
+            )}
+
+            {showFormForEdit && (
+                <SubDataUploadDialog
+                    handleEditRequest={true}
+                    resourceDataEntryId={parentId}
+                    subId={id}
+                    onClose={() => setshowFormForEdit(false)}
                 />
             )}
         </>

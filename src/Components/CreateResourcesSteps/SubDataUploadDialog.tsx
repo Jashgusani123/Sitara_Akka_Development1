@@ -6,17 +6,25 @@ import {
   DialogTitle,
   TextField,
   MenuItem,
+  Typography,
+  Box
 } from "@mui/material";
 import { useState } from "react";
-import { createSubData } from "../../APIs/PostAPIs";
+import { createSubData, EditResource } from "../../APIs/PostAPIs";
 import { useDispatch } from "react-redux";
+import { motion } from "framer-motion";
+import { FaFileUpload } from "react-icons/fa";
 
 export const SubDataUploadDialog = ({
   resourceDataEntryId,
   onClose,
+  handleEditRequest,
+  subId,
 }: {
   resourceDataEntryId: string;
-  onClose: () => void; 
+  onClose: () => void;
+  handleEditRequest?: boolean;
+  subId?: string;
 }) => {
   const [file, setFile] = useState<File | undefined>(undefined);
   const [name, setName] = useState("");
@@ -42,6 +50,24 @@ export const SubDataUploadDialog = ({
     }
 
     setLoading(true);
+
+    if (handleEditRequest && subId) {
+      const res = await EditResource({
+        id: subId,
+        at: "subdata",
+        data: { name, datatype, resourceDataEntryId, link },
+        dispatch,
+        key: resourceDataEntryId,
+      });
+
+      if (res === "Cannot update: linked ResourceItem still exists.") {
+        alert(res);
+      }
+
+      onClose();
+      return;
+    }
+
     await createSubData({
       file: datatype === "file" ? file : undefined,
       name,
@@ -51,66 +77,160 @@ export const SubDataUploadDialog = ({
       setMessage,
       dispatch,
     });
+
     setLoading(false);
     onClose();
   };
 
   return (
-    <Dialog open onClose={onClose}>
-      <form onSubmit={handleSubmit}>
-        <DialogTitle>Add Sub Data</DialogTitle>
-        <DialogContent className="flex flex-col gap-4 mt-2">
-          <TextField
-            label="Datatype"
-            select
-            value={datatype}
-            onChange={(e) => setDatatype(e.target.value)}
-            fullWidth
-            required
+    <Dialog
+      open
+      onClose={onClose}
+      fullWidth
+      maxWidth="sm"
+      PaperProps={{ sx: { borderRadius: 3 } }}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: -30 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.9, y: -30 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        style={{ width: "100%" }}
+      >
+        <form onSubmit={handleSubmit}>
+          <DialogTitle
+            sx={{ backgroundColor: "#0E6BB0", color: "white", fontWeight: "bold" }}
           >
-            <MenuItem value="file">File</MenuItem>
-            <MenuItem value="link">Link</MenuItem>
-            <MenuItem value="array">Array</MenuItem>
-          </TextField>
+            {handleEditRequest ? "Edit Sub Data" : "Add Sub Data"}
+          </DialogTitle>
 
-          <TextField
-            label="Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            fullWidth
-            required
-          />
+          <DialogContent sx={{ backgroundColor: "#F9FAFB",display:"flex" , justifyContent:"center" ,margin:"20px" }} style={{padding:"10px"}}>
+            <Box display="flex" flexDirection="column" gap={2} width={"100%"}>
+              <TextField
+                label="Datatype"
+                select
+                variant="outlined"
+                value={datatype}
+                onChange={(e) => setDatatype(e.target.value)}
+                fullWidth
+                required
+                InputLabelProps={{ shrink: true }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '&:hover fieldset': { borderColor: "#0E6BB0" },
+                    '&.Mui-focused fieldset': { borderColor: "#0E6BB0" },
+                  },
+                }}
+              >
+                <MenuItem value="file">File</MenuItem>
+                <MenuItem value="link">Link</MenuItem>
+                <MenuItem value="array">Array</MenuItem>
+              </TextField>
 
-          {datatype === "file" && (
-            <input
-              type="file"
-              onChange={(e) => setFile(e.target.files?.[0] || undefined)}
-              required
-            />
+
+              <TextField
+                label="Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                fullWidth
+                required
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '&:hover fieldset': { borderColor: "#0E6BB0" },
+                    '&.Mui-focused fieldset': { borderColor: "#0E6BB0" },
+                  },
+                }}
+              />
+
+              {datatype === "file" && (
+                <>
+                  <Button
+                    component="label"
+                    variant="outlined"
+                    startIcon={<FaFileUpload />}
+                    sx={{
+                      color: "#0E6BB0",
+                      borderColor: "#0E6BB0",
+                      fontWeight: "bold",
+                      borderRadius: 2,
+                      '&:hover': {
+                        backgroundColor: "#e6f0fa",
+                        borderColor: "#0E6BB0",
+                      },
+                    }}
+                  >
+                    {file ? "Change File" : "Upload File"}
+                    <input
+                      hidden
+                      type="file"
+                      onChange={(e) => setFile(e.target.files?.[0])}
+                    />
+                  </Button>
+                  {file && (
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                      Uploaded: <strong>{file.name}</strong>
+                    </Typography>
+                  )}
+                </>
+              )}
+
+              {datatype === "link" && (
+                <TextField
+                  label="Link"
+                  value={link}
+                  onChange={(e) => setLink(e.target.value)}
+                  fullWidth
+                  required
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '&:hover fieldset': { borderColor: "#0E6BB0" },
+                      '&.Mui-focused fieldset': { borderColor: "#0E6BB0" },
+                    },
+                  }}
+                />
+              )}
+            </Box>
+          </DialogContent>
+
+          <DialogActions sx={{ px: 3, py: 2, backgroundColor: "#F9FAFB" }}>
+            <Button
+              onClick={onClose}
+              sx={{
+                color: "#0E6BB0",
+                fontWeight: "bold",
+                borderRadius: 2,
+                '&:hover': { backgroundColor: "#e6f0fa" },
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={loading}
+              sx={{
+                backgroundColor: "#FAC54D",
+                color: "#000",
+                fontWeight: "bold",
+                borderRadius: 2,
+                '&:hover': { backgroundColor: "#fcd45d" },
+              }}
+            >
+              {loading ? "Saving..." : handleEditRequest ? "Update" : "Add Subdata"}
+            </Button>
+          </DialogActions>
+
+          {message && (
+            <Typography
+              variant="body2"
+              align="center"
+              sx={{ color: "red", mt: 1, fontWeight: 500 }}
+            >
+              {message}
+            </Typography>
           )}
-
-          {datatype === "link" && (
-            <TextField
-              label="Link"
-              value={link}
-              onChange={(e) => setLink(e.target.value)}
-              fullWidth
-              required
-            />
-          )}
-        </DialogContent>
-
-        <DialogActions>
-          <Button onClick={onClose} color="inherit">
-            Cancel
-          </Button>
-          <Button type="submit" variant="contained" disabled={loading}>
-            {loading ? "Uploading..." : "Add Subdata"}
-          </Button>
-        </DialogActions>
-
-        <p className="text-center text-sm text-red-600 mt-2">{message}</p>
-      </form>
+        </form>
+      </motion.div>
     </Dialog>
   );
 };

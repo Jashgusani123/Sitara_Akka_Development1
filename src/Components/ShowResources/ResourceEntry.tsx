@@ -6,6 +6,7 @@ import { GetSubdata } from '../../APIs/GetAPIs';
 import type { RootState } from '../../Redux/Store';
 import { SubDataUploadDialog } from '../CreateResourcesSteps/SubDataUploadDialog';
 import ResourceSubdata from './ResourceSubdata';
+import { ResourceDataEntryDialog } from '../CreateResourcesSteps/ResourceDataEntryDialog';
 
 interface Props {
   expandedEntryId: string,
@@ -14,7 +15,7 @@ interface Props {
   id: string,
   isAdmin: boolean,
   type: string,
-  parentId:string;
+  parentId: string;
   expandedSubId: string | null
   handleDelete: ({ id, at, key }: { id: string, at: string, key?: string }) => void
 }
@@ -32,6 +33,7 @@ const ResourceEntry = ({
 }: Props) => {
 
   const [showForm, setShowForm] = useState(false);
+  const [showFormForEdit, setshowFormForEdit] = useState(false);
   const [currentSubId, setCurrentSubId] = useState<string | null>(null);
   const subDataMap = useSelector((state: RootState) => state.subData.subDataMap);
   const dispatch = useDispatch();
@@ -61,21 +63,21 @@ const ResourceEntry = ({
         </span>
         {isAdmin && (
           <div className="flex gap-2">
-            <button className="bg-green-300 rounded-xl px-3 py-1 hover:bg-green-400 cursor-pointer text-sm transition">
+            <button className="bg-green-300 rounded-xl px-3 py-1 hover:bg-green-400 cursor-pointer text-sm transition" onClick={() => setshowFormForEdit(true)}>
               Edit
             </button>
             <button
               className="bg-red-300 rounded-xl px-3 py-1 hover:bg-red-400 cursor-pointer text-sm transition"
-              onClick={() =>{
-                if(parentId){
-                    handleDelete({ id ,at: "resource-data-entries", key:parentId  })
+              onClick={() => {
+                if (parentId) {
+                  handleDelete({ id, at: "resource-data-entries", key: parentId })
                 }
-                }}
+              }}
             >
               Delete
             </button>
             <button onClick={() => handleAddEntry(id)}>
-              <ControlPointIcon style={{ color: "black", cursor:"pointer" }} />
+              <ControlPointIcon style={{ color: "black", cursor: "pointer" }} />
             </button>
           </div>
         )}
@@ -104,6 +106,7 @@ const ResourceEntry = ({
                       isArray={isArray}
                       isSubExpanded={isSubExpanded}
                       type={sub.datatype}
+                      link={sub.link}
                       setExpandedSubId={setExpandedSubId}
                       id={sub._id}
                       parentId={id}
@@ -125,6 +128,15 @@ const ResourceEntry = ({
         <SubDataUploadDialog
           resourceDataEntryId={currentSubId}
           onClose={() => setShowForm(false)}
+        />
+      )}
+
+      {showFormForEdit && (
+        <ResourceDataEntryDialog
+          entryId={id}
+          handleEditRequest={true}
+          resourceId={parentId}
+          onClose={() => setshowFormForEdit(false)}
         />
       )}
     </>

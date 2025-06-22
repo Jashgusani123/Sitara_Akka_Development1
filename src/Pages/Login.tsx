@@ -4,7 +4,7 @@ import { Snackbar, CircularProgress } from '@mui/material';
 import Image from '../assets/Register Image.png';
 import Logo from '../assets/Logo.png';
 import { useNavigate } from 'react-router-dom';
-// import { useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 const Login = () => {
   const [phone, setPhone] = useState('');
@@ -13,7 +13,7 @@ const Login = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +25,7 @@ const Login = () => {
 
     setError('');
     setLoading(true); 
-    const res = await LoginUser({ phone });
+    const res = await LoginUser({ phone , dispatch , setError });
     setLoading(false); 
 
     if (res) {

@@ -29,9 +29,10 @@ const resourceSlice = createSlice({
     removeResourceById: (state, action: PayloadAction<string>) => {
       state.resources = state.resources.filter(r => r._id !== action.payload);
     },
-    replaceFirstIfIdMatches: (state, action: PayloadAction<Resource>) => {
-      if (state.resources.length && state.resources[0]._id === action.payload._id) {
-        state.resources[0] = action.payload;
+    updateResourceById: (state, action: PayloadAction<Resource>) => {
+      const index = state.resources.findIndex(r => r._id === action.payload._id);
+      if (index !== -1) {
+        state.resources[index] = action.payload;
       }
     },
     appendResource: (state, action: PayloadAction<Resource>) => {
@@ -47,5 +48,5 @@ const resourceSlice = createSlice({
   },
 });
 
-export const { setResources, clearResources, removeResourceById, replaceFirstIfIdMatches, appendResource } = resourceSlice.actions;
+export const { setResources, clearResources, removeResourceById, updateResourceById, appendResource } = resourceSlice.actions;
 export default resourceSlice.reducer;

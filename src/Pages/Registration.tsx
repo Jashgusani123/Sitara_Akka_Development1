@@ -39,8 +39,8 @@ const Registration = () => {
         return;
       }
     } else if (step === 3) {
-      if (!age || isNaN(age) || +age < 5 || +age > 100) {
-        setError('Enter a valid age between 5 and 100');
+      if (!age || isNaN(age) || +age < 3 || +age > 100) {
+        setError('Enter a valid age between 3 and 100');
         return;
       }
     } else if (step === 4) {
