@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { GetLanguages } from "../APIs/GetAPIs";
 import { setLanguage } from "../Redux/Slices/languageSlice";
-import Loding from "./Loding";
+import Loading from "./Loading";
 import type { RootState } from "../Redux/Store";
 
 interface Props {
@@ -59,7 +59,7 @@ const LanguageSelector = ({ onClose, setOpenSnackbar }: Props) => {
                 </p>
               ))
             ) : (
-              <Loding />
+              <Loading />
             )}
           </> : <p className="text-zinc-500 text-sm">Not Available..</p>}
 

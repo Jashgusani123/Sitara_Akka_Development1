@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { GetResourceItems } from "../../APIs/GetAPIs";
 import type { RootState } from "../../Redux/Store";
 import CreateResourceItemForm from "../CreateResourcesSteps/CreateResourceItemForm";
-import Loding from "../Loding";
+import Loading from "../Loading";
 import ResourceItem from "./ResourceItem";
 import { SubDataUploadDialog } from '../CreateResourcesSteps/SubDataUploadDialog';
 
@@ -170,7 +170,7 @@ const ResourceSubdata = ({
                                         />
                                     ))
                                 ) : (
-                                    <Loding />
+                                    <Loading />
                                 )}
 
                             </> : <p className="text-zinc-500 text-sm">Not Added Yet.</p>}

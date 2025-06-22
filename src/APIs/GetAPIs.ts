@@ -5,30 +5,10 @@ import { setGottedLanguages } from "../Redux/Slices/languageSlice";
 import { setResourceItemsMap } from "../Redux/Slices/resourceItemsSlice";
 import { setResources } from "../Redux/Slices/resourcesSlice";
 import { setSubDataMap } from "../Redux/Slices/subDataSlice";
-import { setUser } from "../Redux/Slices/userSlice";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
-export const GetUser = async ({ dispatch }:{dispatch:ReduxDispatch}) => {
-  const token = localStorage.getItem(import.meta.env.VITE_LOCAL_STORAGE_TOKEN)
-  try {
-    const response = await axios(`${BASE_URL}/api/user`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
 
-    if (response.status !== 200) {
-      return false;
-    }
-    dispatch(setUser(response.data.user))
-    return true;
-  }catch(error){
-    console.log("Error while Fetch user: ", error);
-    
-  }
-
-}
 export const GetLanguages = async ({
   dispatch,
 }: {

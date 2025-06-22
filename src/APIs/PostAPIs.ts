@@ -180,8 +180,9 @@ export const createResourceItem = async ({
     }
 };
 
-export const deleteResource = async ({ id, at, dispatch, key }: { id: string, at: string, dispatch: ReduxDispatch, key?: string }) => {
-    const token = localStorage.getItem(import.meta.env.VITE_LOCAL_STORAGE_TOKEN);
+export const deleteResource = async ({ id, at, dispatch, key }: { id: string, at: string, dispatch: ReduxDispatch, key?: string}) => {
+   try{
+     const token = localStorage.getItem(import.meta.env.VITE_LOCAL_STORAGE_TOKEN);
     const response = await axios.delete(`${BASE_URL}/api/${at}/${id}`, {
         headers: {
             Authorization: `Bearer ${token}`,
@@ -201,6 +202,9 @@ export const deleteResource = async ({ id, at, dispatch, key }: { id: string, at
     } else if (at === 'resource-items') {
         dispatch(removeResourceItemById({ key: key!, id }));
     }
+   }catch(error:any){
+        console.log(error.response.data.message);
+   }
 
 };
 

@@ -1,5 +1,5 @@
 
-const Loding = () => {
+const Loading = () => {
     return (
         <div className="flex justify-center w-full">
             <div
@@ -9,4 +9,4 @@ const Loding = () => {
     )
 }
 
-export default Loding
+export default Loading

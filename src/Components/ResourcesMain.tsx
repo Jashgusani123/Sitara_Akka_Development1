@@ -6,7 +6,7 @@ import { deleteResource } from "../APIs/PostAPIs";
 import type { RootState } from "../Redux/Store";
 import CreateResourceDialog from "./CreateResourcesSteps/CreateResourceDialog";
 import LanguageSelector from "./LanguageSelector";
-import Loding from "./Loding";
+import Loading from "./Loading";
 import Resource from "./ShowResources/Resource";
 
 
@@ -15,7 +15,7 @@ const ResourcesMain = ({ isAdmin }: { isAdmin?: boolean }) => {
     const [expandedSubject, setExpandedSubject] = useState<string | null>(null);
     const [expandedEntryId, setExpandedEntryId] = useState<string | null>(null);
     const [expandedSubId, setExpandedSubId] = useState<string | null>(null);
-    const [expandedSubjectLoding, setExpandedSubjectLoding] = useState<boolean>(true);
+    const [expandedSubjectLoading, setExpandedSubjectLoading] = useState<boolean>(true);
     const [message, setMessage] = useState<string>("");
     const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
     const [SelectLangDialog, setSelectLangDialog] = useState<boolean>(false);
@@ -27,15 +27,13 @@ const ResourcesMain = ({ isAdmin }: { isAdmin?: boolean }) => {
     const dispatch = useDispatch();
     const fetchResources = async () => {
         if (language === "") {
-            setExpandedSubjectLoding(false);
+            setExpandedSubjectLoading(false);
             setMessage("First, Please Select Language, ")
             return;
         }
         await GetSubjects({ lan: language, dispatch });
-        setExpandedSubjectLoding(false);
-        if (allSubjects.length === 0) {
-            setMessage("For This Language Resources not Avaiable....")
-        }
+        setMessage("Language Selected !!")
+        setExpandedSubjectLoading(false);
     }
     useEffect(() => {
         fetchResources()
@@ -45,14 +43,14 @@ const ResourcesMain = ({ isAdmin }: { isAdmin?: boolean }) => {
         setIsDialogOpen(true)
     }
 
-    const handleDelete = ({id , at  , key}:{id:string , at:string , key?:string })=>{
+    const handleDelete = ({id , at  , key }:{id:string , at:string , key?:string  })=>{
         deleteResource({id , at , dispatch , key })
     }
 
     return (
         <main className="w-full h-auto p-4 bg-[#FAC54D] rounded-2xl">
             <div className="resources_heading w-full flex bg-white mb-4 rounded-[10px] items-center justify-between">
-                <h2 className="text-3xl font-bold text-gray-800 px-2">Resources</h2>
+                <h2 className="text-3xl font-bold text-gray-800 px-2">Resources {language && <span className="text-zinc-400">({language})</span>}</h2>
                 {isAdmin && <button className={`bg-[#0e6bb0] border-2 border-white cursor-pointer text-white rounded-[10px] text-2xl p-2 `} disabled={language ?false:true} onClick={handleCreateResourceBTN}>
                     Create Resource
                 </button>}
@@ -64,11 +62,9 @@ const ResourcesMain = ({ isAdmin }: { isAdmin?: boolean }) => {
                         {allSubjects.length > 0 ? 
                         allSubjects.map((i) => (
                             <li key={i._id} className="p-4">
-                                
                                 <Resource expandedSubject={expandedSubject} setExpandedSubject={setExpandedSubject} setExpandedEntryId={setExpandedEntryId} setExpandedSubId={setExpandedSubId} id={i._id} isAdmin={isAdmin} subject={i.subj} handleDelete={handleDelete} expandedEntryId={expandedEntryId} expandedSubId={expandedSubId}/>
-
                             </li>
-                        )) : expandedSubjectLoding ? <Loding /> : <p className="flex  flex-wrap text-zinc-600 justify-center">{message}{message === "First, Please Select Language, " ? <span className="text-blue-800 underline cursor-pointer" onClick={() => setSelectLangDialog(true)}> Select Language </span> : <p>Try again</p>}</p>}
+                        )) : expandedSubjectLoading ? <Loading /> : <p className="flex  flex-wrap text-zinc-600 justify-center">{message}{message === "First, Please Select Language, " ? <span className="text-blue-800 underline cursor-pointer" onClick={() => setSelectLangDialog(true)}> Select Language </span> : <p>Try again</p>}</p>}
                     </ul>
                 </div>
             </section>
@@ -82,7 +78,7 @@ const ResourcesMain = ({ isAdmin }: { isAdmin?: boolean }) => {
 
             <Snackbar
                 open={openSnackbar}
-                message="Language Selected!"
+                message={message}
                 anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
                 ContentProps={{
                     sx: {

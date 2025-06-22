@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import AdminLanding from './Pages/AdminLanding';
 import AdminResources from './Pages/AdminResources';
@@ -8,14 +8,12 @@ import Login from './Pages/Login';
 import Registration from './Pages/Registration';
 import Resources from './Pages/Resources';
 import type { RootState } from './Redux/Store';
-import { GetUser } from './APIs/GetAPIs';
 
 const App = () => {
   const [IsAdmin, setIsAdmin] = useState(false);
   const [IsUser, setIsUser] = useState(false);
   const [Checking, setChecking] = useState(true);
   const User = useSelector((state: RootState) => state.user.user);
-  const dispatch = useDispatch();
 
   useEffect(() => {
     const token = localStorage.getItem(import.meta.env.VITE_LOCAL_STORAGE_TOKEN);
@@ -29,7 +27,7 @@ const App = () => {
         setIsUser(false);
       }
     } else if (!User && token) {
-      GetUser({ dispatch })
+      localStorage.removeItem(import.meta.env.VITE_LOCAL_STORAGE_TOKEN);
     } else {
       setIsAdmin(false);
       setIsUser(false);

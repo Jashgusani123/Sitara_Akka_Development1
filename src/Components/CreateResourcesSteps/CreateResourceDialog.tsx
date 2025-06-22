@@ -33,25 +33,59 @@ const CreateResourceDialog = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    let trimmedLang = languageDialog.trim();
+    const trimmedClass = className.trim();
+    let trimmedSubj = subject.trim();
+
+    const onlyLettersAndSpaces = /^[A-Za-z\s]+$/;
+    const validSubject = /^[A-Za-z\s\-]+$/;
+    const validClass = /^[0-9]{1,2}(th|st|nd|rd)?$/i;
+
+    // Validations
+    if (!trimmedLang || trimmedLang.length < 2 || !onlyLettersAndSpaces.test(trimmedLang)) {
+      setMessage("Please enter a valid language name (letters only, min 2 characters)");
+      return;
+    }
+
+    if (!trimmedClass || !validClass.test(trimmedClass)) {
+      setMessage("Please enter a valid class (e.g., 10, 12th)");
+      return;
+    }
+
+    if (!trimmedSubj || trimmedSubj.length < 2 || !validSubject.test(trimmedSubj)) {
+      setMessage("Please enter a valid subject name (letters, spaces or hyphens only)");
+      return;
+    }
+
+    if (!handleEditRequest) {
+      trimmedLang = trimmedLang.charAt(0).toUpperCase() + trimmedLang.slice(1).toLowerCase();
+      trimmedSubj = trimmedSubj.charAt(0).toUpperCase() + trimmedSubj.slice(1).toLowerCase();
+    }
+
     if (handleEditRequest && resourceId) {
       await EditResource({
         id: resourceId,
         at: "resources",
-        data: { lan: languageDialog, class: className, subj: subject },
+        data: { lan: trimmedLang, class: trimmedClass, subj: trimmedSubj },
         dispatch,
       });
       onClose();
       return;
     }
+
     await CreateResource({
-      lan: languageDialog,
-      className,
-      subj: subject,
+      lan: trimmedLang,
+      className: trimmedClass,
+      subj: trimmedSubj,
       dispatch,
       setMessage,
     });
+
     onClose();
   };
+
+
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
@@ -72,7 +106,7 @@ const CreateResourceDialog = ({
             {handleEditRequest ? "Edit Resource" : "Create Resource"}
           </DialogTitle>
 
-          <DialogContent sx={{ backgroundColor: "#F9FAFB",display:"flex" , justifyContent:"center" ,margin:"20px" }} style={{padding:"10px"}}>
+          <DialogContent sx={{ backgroundColor: "#F9FAFB", display: "flex", justifyContent: "center", margin: "20px" }} style={{ padding: "10px" }}>
             <Box display="flex" flexDirection="column" gap={2} width={"100%"}>
               <TextField
                 label="Language"

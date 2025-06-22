@@ -8,7 +8,7 @@ import { GetEntries } from '../../APIs/GetAPIs';
 import type { RootState } from '../../Redux/Store';
 import CreateResourceDialog from '../CreateResourcesSteps/CreateResourceDialog';
 import { ResourceDataEntryDialog } from '../CreateResourcesSteps/ResourceDataEntryDialog';
-import Loding from '../Loding';
+import Loading from '../Loading';
 import ResourceEntry from './ResourceEntry';
 interface Props {
   expandedSubject?: string | null,
@@ -79,6 +79,7 @@ function Resource({
   const handleRequestEdit = () => {
     setshowFormForEdit(true)
   }
+  
   const entryList = entriesMap[id];
 
   return (
@@ -138,7 +139,7 @@ function Resource({
                   </div>
                 ))
               ) : (
-                <Loding />
+                <Loading />
               )}
             </> : <p className='text-zinc-500 text-sm '>Not Added Yet.</p>}
 
