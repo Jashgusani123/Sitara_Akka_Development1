@@ -1,12 +1,15 @@
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { GetSubdata } from '../../APIs/GetAPIs';
 import type { RootState } from '../../Redux/Store';
 import { SubDataUploadDialog } from '../CreateResourcesSteps/SubDataUploadDialog';
 import ResourceSubdata from './ResourceSubdata';
 import { ResourceDataEntryDialog } from '../CreateResourcesSteps/ResourceDataEntryDialog';
+import { Snackbar } from '@mui/material';
+import { deleteResource } from '../../APIs/PostAPIs';
+import Loading from '../Loading';
 
 interface Props {
   expandedEntryId: string,
@@ -17,7 +20,6 @@ interface Props {
   type: string,
   parentId: string;
   expandedSubId: string | null
-  handleDelete: ({ id, at, key }: { id: string, at: string, key?: string }) => void
 }
 
 const ResourceEntry = ({
@@ -27,7 +29,6 @@ const ResourceEntry = ({
   id,
   isAdmin,
   type,
-  handleDelete,
   parentId,
   expandedSubId
 }: Props) => {
@@ -35,15 +36,30 @@ const ResourceEntry = ({
   const [showForm, setShowForm] = useState(false);
   const [showFormForEdit, setshowFormForEdit] = useState(false);
   const [currentSubId, setCurrentSubId] = useState<string | null>(null);
+  const [Message, setMessage] = useState('');
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+
   const subDataMap = useSelector((state: RootState) => state.subData.subDataMap);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (Message !== "") {
+      setOpenSnackbar(true);
+      const timer = setTimeout(() => {
+        setOpenSnackbar(false);
+        setMessage('');
+      }, 4000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [Message]);
 
   const handleSubdataFetch = (entryId: string) => {
     const isExpanded = expandedEntryId === entryId;
     setExpandedEntryId(isExpanded ? null : entryId);
     setExpandedSubId(null);
 
-    if (!isExpanded && !subDataMap[entryId]) {
+    if (!isExpanded && !subDataMap[entryId] && entryId) {
       GetSubdata({ resourceDataEntryId: entryId, dispatch });
     }
   };
@@ -70,7 +86,7 @@ const ResourceEntry = ({
               className="bg-red-300 rounded-xl px-3 py-1 hover:bg-red-400 cursor-pointer text-sm transition"
               onClick={() => {
                 if (parentId) {
-                  handleDelete({ id, at: "resource-data-entries", key: parentId })
+                  deleteResource({ id, at: "resource-data-entries", key: parentId, setMessage, dispatch })
                 }
               }}
             >
@@ -92,36 +108,42 @@ const ResourceEntry = ({
             transition={{ duration: 0.3 }}
             className="ml-4 space-y-2"
           >
-            {currentSubData.length !== 0 ? (
-              currentSubData.map((sub) => {
-                const isArray = sub.datatype === "array";
-                const isSubExpanded = expandedSubId === sub._id;
+            {
+              id in subDataMap ? (
+                currentSubData.length > 0 ? (
+                  currentSubData.map((sub) => {
+                    const isArray = sub.datatype === "array";
+                    const isSubExpanded = expandedSubId === sub._id;
 
-                return (
-                  <div
-                    key={sub._id}
-                    className="flex flex-col gap-1 bg-white px-3 py-2 rounded-md border border-gray-200"
-                  >
-                    <ResourceSubdata
-                      isArray={isArray}
-                      isSubExpanded={isSubExpanded}
-                      type={sub.datatype}
-                      link={sub.link}
-                      setExpandedSubId={setExpandedSubId}
-                      id={sub._id}
-                      parentId={id}
-                      isAdmin={isAdmin}
-                      subject={sub.name}
-                      handleDelete={handleDelete}
-                    />
-                  </div>
-                );
-              })
-            ) : (
-              <p className='text-zinc-500 text-sm '>Not Added Yet.</p>
-            )}
+                    return (
+                      <div
+                        key={sub._id}
+                        className="flex flex-col gap-1 bg-white px-3 py-2 rounded-md border border-gray-200"
+                      >
+                        <ResourceSubdata
+                          isArray={isArray}
+                          isSubExpanded={isSubExpanded}
+                          type={sub.datatype}
+                          link={sub.link}
+                          setExpandedSubId={setExpandedSubId}
+                          id={sub._id}
+                          parentId={id}
+                          isAdmin={isAdmin}
+                          subject={sub.name}
+                        />
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p className="text-zinc-500 text-sm">Not Added Yet.</p>
+                )
+              ) : (
+                <Loading />
+              )
+            }
           </motion.div>
         )}
+
       </AnimatePresence>
 
       {showForm && currentSubId && (
@@ -139,6 +161,21 @@ const ResourceEntry = ({
           onClose={() => setshowFormForEdit(false)}
         />
       )}
+
+      <Snackbar
+        open={openSnackbar}
+        message={Message}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        ContentProps={{
+          sx: {
+            backgroundColor: "#FFD004",
+            color: "black",
+            fontWeight: "bold",
+            fontSize: "16px",
+            borderRadius: "8px",
+          },
+        }}
+      />
     </>
   );
 };

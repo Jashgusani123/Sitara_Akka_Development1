@@ -6,6 +6,7 @@ import { GetLanguages } from "../APIs/GetAPIs";
 import { setLanguage } from "../Redux/Slices/languageSlice";
 import Loading from "./Loading";
 import type { RootState } from "../Redux/Store";
+import { Snackbar } from "@mui/material";
 
 interface Props {
   onClose?: () => void;
@@ -14,14 +15,22 @@ interface Props {
 
 const LanguageSelector = ({ onClose, setOpenSnackbar }: Props) => {
   const [selectedLang, setSelectedLang] = useState<string>("");
+  const [Error, setError] = useState('');
+  const [showError, setshowError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const Languages = useSelector((state: RootState) => state.language.gottedLanguages);
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (Languages.length === 0) {
-      GetLanguages({ dispatch });
+    const fetchLang = async () => {
+      if (Languages.length === 0) {
+        setIsLoading(true);
+        await GetLanguages({ dispatch });
+        setIsLoading(false);
+      }
     }
+    fetchLang();
   }, []);
 
   const handleSelect = () => {
@@ -30,48 +39,69 @@ const LanguageSelector = ({ onClose, setOpenSnackbar }: Props) => {
       setOpenSnackbar(true);
       setTimeout(() => setOpenSnackbar(false), 2000);
       if (onClose) onClose();
+    } else {
+      setError("Please Select Language !!");
+      setshowError(true);
+      setTimeout(() => setshowError(false), 2000);
+
     }
   };
-  const handleCancle = ()=>{
+  const handleCancle = () => {
     onClose?.();
   }
 
   return (
-    <ClickAwayListener onClickAway={() => onClose?.()}>
-      <motion.div
-        initial={{ x: 300, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        exit={{ x: 300, opacity: 0 }}
-        transition={{ type: "spring", stiffness: 100 }}
-        className="absolute lg:top-24 lg:right-4 top-28 md:right-[-30px] gap-2 flex flex-col bg-zinc-300 text-blue-900 shadow-xl rounded-lg lg:w-96 p-4 z-50 w-fit right-3 overflow-hidden"
-      >
-        <div className="options w-full justify-center items-center max-w-full flex gap-2 overflow-x-auto no-scrollbar whitespace-nowrap">
-          {Languages.length !== 0 ? <>
-            {Languages.length > 0 ? (
-              Languages.map((lang) => (
-                <p
-                  key={lang}
-                  onClick={() => setSelectedLang(lang)}
-                  className={`p-2 rounded-2xl cursor-pointer ${selectedLang === lang ? "bg-blue-500 text-white" : "bg-white"
-                    }`}
-                >
-                  {lang}
-                </p>
-              ))
-            ) : (
-              <Loading />
-            )}
-          </> : <p className="text-zinc-500 text-sm">Not Available..</p>}
-
-        </div>
-        <button
-          className="bg-white p-2 rounded-2xl cursor-pointer"
-          onClick={Languages.length !== 0 ? handleSelect : handleCancle}
+    <>
+      <ClickAwayListener onClickAway={() => onClose?.()}>
+        <motion.div
+          initial={{ x: 300, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: 300, opacity: 0 }}
+          transition={{ type: "spring", stiffness: 100 }}
+          className="absolute lg:top-24 lg:right-4 top-28 md:right-[-30px] gap-2 flex flex-col bg-zinc-300 text-blue-900 shadow-xl rounded-lg lg:w-96 p-4 z-50  right-3 overflow-hidden"
         >
-          {Languages.length !== 0 ? "Select" : "Cancle"}
-        </button>
-      </motion.div>
-    </ClickAwayListener>
+          <div className="options w-full justify-center items-center max-w-full flex gap-2 overflow-x-auto no-scrollbar whitespace-nowrap">
+            {!isLoading ? <>{Languages.length !== 0 ? <>
+              {Languages.length > 0 ? (
+                Languages.map((lang) => (
+                  <p
+                    key={lang}
+                    onClick={() => setSelectedLang(lang)}
+                    className={`p-2 rounded-2xl cursor-pointer ${selectedLang === lang ? "bg-blue-500 text-white" : "bg-white"
+                      }`}
+                  >
+                    {lang}
+                  </p>
+                ))
+              ) : (
+                <Loading />
+              )}
+            </> : <p className="text-zinc-500 text-sm">Not Available..</p>}</> : <Loading />}
+
+          </div>
+          <button
+            className="bg-white p-2 rounded-2xl cursor-pointer"
+            onClick={Languages.length !== 0 ? handleSelect : handleCancle}
+          >
+            {Languages.length !== 0 ? "Select" : "Cancle"}
+          </button>
+        </motion.div>
+      </ClickAwayListener>
+      <Snackbar
+        open={showError}
+        message={Error}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        ContentProps={{
+          sx: {
+            backgroundColor: "red",
+            color: "black",
+            fontWeight: "bold",
+            fontSize: "16px",
+            borderRadius: "8px",
+          },
+        }}
+      />
+    </>
   );
 };
 

@@ -26,7 +26,7 @@ const Login = () => {
 
     setError('');
     setLoading(true);
-    const res = await LoginUser({ phone, dispatch, setError });
+    const res = await LoginUser({ phone, dispatch,setMessage:setError });
     setLoading(false);
 
     if (res) {

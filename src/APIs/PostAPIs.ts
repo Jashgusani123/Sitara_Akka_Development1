@@ -29,17 +29,16 @@ export const CreateResource = async ({
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             data: { lan, class: className, subj }
         });
-
-        if (response.status !== 201) {
-            console.log("Error in Create Resources");
-            return false;
-        }
-
         setMessage(response.data.message);
         dispatch(appendResource(response.data.resource))
-
-        return response.data.resource;
-    } catch (error) {
+        return true;
+    } catch (error: any) {
+        if (error.response.status == 409) {
+            setMessage("❌ Resource with this same data already exists for this Language");
+        }
+        else {
+            setMessage("❌ " + (error.response?.data?.message || "Failed to create Resource"));
+        }
         return false;
     }
 };
@@ -67,12 +66,19 @@ export const createResourceDataEntry = async ({
                 },
             }
         );
-
         setMessage(response.data.message);
         dispatch(appendEntryToResource({ entry: response.data.resourceEntry, resourceId }))
-        return response.data.resourceEntry;
-    } catch (err: any) {
-        setMessage("❌ " + (err.response?.data?.message || "Failed to create entry"));
+        return true;
+    } catch (error: any) {
+        if (error.response?.status === 409) {
+            setMessage("❌ For this type already exists in this Resource, Make with other type ...")
+            return null;
+        } else if (error.response.status === 404) {
+            setMessage("Refresh the page and Try again...");
+            return null
+        } else {
+            setMessage("❌ " + (error.response?.data?.message || "Failed to create entry"));
+        }
         return null;
     }
 };
@@ -98,10 +104,20 @@ export const createSubData = async ({
         const token = localStorage.getItem(import.meta.env.VITE_LOCAL_STORAGE_TOKEN);
         const formData = new FormData();
 
-        formData.append("name", name);
-        formData.append("datatype", datatype);
-        formData.append("resourceDataEntryId", resourceDataEntryId);
-        if (link) {
+        if (resourceDataEntryId && name && (datatype && ["link", "array", "file"].includes(datatype))) {
+            formData.append("name", name);
+            formData.append("datatype", datatype);
+            formData.append("resourceDataEntryId", resourceDataEntryId);
+        } else {
+            setMessage("❌ Data not provided Properly.. ")
+        }
+
+
+        if (datatype === "link") {
+            if (!link) {
+                setMessage("❌ Link is required for datatype 'link'");
+                return null;
+            }
             formData.append("link", link);
         }
 
@@ -110,7 +126,6 @@ export const createSubData = async ({
                 setMessage("❌ File is required for datatype 'file'");
                 return null;
             }
-
             formData.append("file", file);
         }
 
@@ -120,17 +135,17 @@ export const createSubData = async ({
                 "Content-Type": "multipart/form-data",
             },
         });
-
-
         setMessage(response.data.message);
-        dispatch(appendSubdata({item:response.data.subData , entryId:resourceDataEntryId}));
+        dispatch(appendSubdata({ item: response.data.subData, entryId: resourceDataEntryId }));
         return response.data.subData;
-    } catch (err: any) {
-        console.log(err);
-
-        setMessage(
-            "❌ " + (err.response?.data?.message || "Failed to create SubData")
-        );
+    } catch (error: any) {
+        if (error.response.status === 409) {
+            setMessage("❌ SubData with this same Data already exists");
+        } else if (error.response.status === 404) {
+            setMessage("Refresh the page and Try again... ")
+        } else {
+            setMessage("❌ " + (error.response?.data?.message || "Failed to create SubData"));
+        }
         return null;
     }
 };
@@ -157,10 +172,13 @@ export const createResourceItem = async ({
     try {
         const token = localStorage.getItem(import.meta.env.VITE_LOCAL_STORAGE_TOKEN);
         const formData = new FormData();
-        formData.append("name", name);
-        formData.append("icon", icon);
-        formData.append("type", type);
-        formData.append("subDataId", subDataId);
+        if (name && icon && type && subDataId) {
+            formData.append("name", name);
+            formData.append("icon", icon);
+            formData.append("type", type);
+            formData.append("subDataId", subDataId);
+        }
+
         if (type === "file" && file) formData.append("file", file);
         if (type === "link" && link) formData.append("link", link);
 
@@ -174,66 +192,79 @@ export const createResourceItem = async ({
         setMessage(response.data.message);
         dispatch(appendResourceItem({ key: subDataId, item: response.data.resourceItem }));
         return response.data.resourceItem;
-    } catch (err: any) {
-        setMessage("❌ " + (err.response?.data?.message || "Failed to create Resource Item"));
+    } catch (error: any) {
+        if (error.response.status === 404) {
+            setMessage("Refresh the page and Try again... ")
+        } else if (error.response.status === 409) {
+            setMessage("❌ ResourceItem with this same Data already exists...")
+        } else {
+            setMessage("❌ " + (error.response?.data?.message || "Failed to create Resource Item"));
+        }
         return null;
     }
 };
 
-export const deleteResource = async ({ id, at, dispatch, key }: { id: string, at: string, dispatch: ReduxDispatch, key?: string}) => {
-   try{
-     const token = localStorage.getItem(import.meta.env.VITE_LOCAL_STORAGE_TOKEN);
-    const response = await axios.delete(`${BASE_URL}/api/${at}/${id}`, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-        },
-    });
-    if (response.status !== 200) {
-        console.log("Server error:", response.statusText);
-        return false;
+export const deleteResource = async ({ id, at, dispatch, key, setMessage }: { id: string, at: string, dispatch: ReduxDispatch, key?: string, setMessage: (msg: string) => void; }) => {
+    try {
+        const token = localStorage.getItem(import.meta.env.VITE_LOCAL_STORAGE_TOKEN);
+        const response = await axios.delete(`${BASE_URL}/api/${at}/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data",
+            },
+        });
+        setMessage(response.data.message)
+        if (at === 'resources') {
+            dispatch(removeResourceById(id));
+        } else if (at === 'resource-data-entries' && key) {
+            dispatch(removeEntryFromResource({ entryId: id, resourceId: key }))
+        } else if (at === 'subdata' && key) {
+            dispatch(removeSubDataById({ id, entryId: key }));
+        } else if (at === 'resource-items') {
+            dispatch(removeResourceItemById({ key: key!, id }));
+        }
+    } catch (error: any) {
+        setMessage(error.response.data.message)
     }
-    if (at === 'resources') {
-        dispatch(removeResourceById(id));
-    } else if (at === 'resource-data-entries' && key) {
-        dispatch(removeEntryFromResource({ entryId: id, resourceId: key }))
-    } else if (at === 'subdata' && key) {
-        dispatch(removeSubDataById({ id, entryId: key }));
-    } else if (at === 'resource-items') {
-        dispatch(removeResourceItemById({ key: key!, id }));
-    }
-   }catch(error:any){
-        console.log(error.response.data.message);
-   }
 
 };
 
-export const EditResource = async({id , at , dispatch, key , data}:{ id: string, at: string, dispatch: ReduxDispatch, key?: string , data:any })=>{
-   try{
-     const token = localStorage.getItem(import.meta.env.VITE_LOCAL_STORAGE_TOKEN);
-    
-    const response = await axios.put(`${BASE_URL}/api/${at}/${id}`,data, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    
-    });
-    if (response.status !== 200) {
+export const EditResource = async ({ id, at, dispatch, key, data, setMessage }: { id: string, at: string, dispatch: ReduxDispatch, key?: string, data: any, setMessage: (msg: string) => void; }) => {
+    try {
+        const token = localStorage.getItem(import.meta.env.VITE_LOCAL_STORAGE_TOKEN);
+
+        const response = await axios.put(`${BASE_URL}/api/${at}/${id}`, data, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+
+        });
+        
+        if (at === 'resources') {
+            dispatch(updateResourceById(response.data.resource));
+        } else if (at === 'resource-data-entries' && key) {
+            dispatch(updateEntryForResource({ entry: response.data.entry, resourceId: key }))
+        } else if (at === 'subdata' && key) {
+            dispatch(updateSubDataById({ item: response.data.subData, entryId: key }));
+        } else if (at === 'resource-items') {
+            dispatch(updateResourceItemById({ key: key!, item: response.data.resourceItem }));
+        }
+        return true
+    } catch (error: any) {
+        switch (error.response.status) {
+            case 404:
+                setMessage("Refresh the page and Try again...")
+                break;
+            case 409:
+                setMessage("❌ "+ error.response.data.message)
+                break;
+            case 400:
+                setMessage("❌ " + error.response.data.message)
+                break;
+        }
+
         return false;
     }
-    if (at === 'resources') {
-        dispatch(updateResourceById(response.data.resource));
-    } else if (at === 'resource-data-entries' && key) {
-        dispatch(updateEntryForResource({ entry:response.data.entry, resourceId: key }))
-    } else if (at === 'subdata' && key) {
-        dispatch(updateSubDataById({ item:response.data.subData, entryId: key }));
-    } else if (at === 'resource-items') {
-        dispatch(updateResourceItemById({ key: key!, item:response.data.resourceItem }));
-    }
-   }catch(error:any){
-    
-    return error.response.data.message;
-   }
 }
 
 export const RegistrationUser = async ({
@@ -244,6 +275,7 @@ export const RegistrationUser = async ({
     standard,
     gender,
     dispatch,
+    setMessage
 }: {
     phone: string;
     firstName: string;
@@ -252,6 +284,7 @@ export const RegistrationUser = async ({
     standard: string;
     gender: string;
     dispatch: ReduxDispatch;
+    setMessage : (msg:string) => void;
 }) => {
     try {
         const response = await axios.post(`${BASE_URL}/api/register`, {
@@ -273,12 +306,14 @@ export const RegistrationUser = async ({
         dispatch(setUser(response.data.user));
         return true;
     } catch (error: any) {
-        console.error("Registration failed:", error?.response?.data || error.message);
+        if(error.response.status === 409){
+            setMessage("User with this phone number already exists")
+        }
         return false;
     }
 };
 
-export const LoginUser = async ({ phone, dispatch, setError }: { phone: string, dispatch: ReduxDispatch, setError: (msg: string) => void; }) => {
+export const LoginUser = async ({ phone, dispatch, setMessage }: { phone: string, dispatch: ReduxDispatch, setMessage: (msg: string) => void; }) => {
     try {
         const response = await axios.post(`${BASE_URL}/api/login`, {
             phoneNumber: phone,
@@ -296,8 +331,9 @@ export const LoginUser = async ({ phone, dispatch, setError }: { phone: string, 
         dispatch(setUser(response.data.user))
         return true;
     } catch (error: any) {
-        setError("Account Not Available..")
-        console.error("Login failed:", error?.response?.data || error.message);
+        if(error.response.status === 404){
+            setMessage("Account Not Available..")
+        }
         return false;
     }
 };

@@ -31,18 +31,29 @@ export const ResourceDataEntryDialog = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (handleEditRequest && entryId) {
-      await EditResource({
+    const res = await EditResource({
         id: entryId,
         at: "resource-data-entries",
         data: { type, resourceId },
         dispatch,
         key: resourceId,
+        setMessage
       });
-      onClose();
+      if(res){
+        onClose();
+      }
       return;
     }
-    await createResourceDataEntry({ type, resourceId, setMessage, dispatch });
-    onClose();
+    if(resourceId && type){
+     const res = await createResourceDataEntry({ type, resourceId, setMessage, dispatch });
+     if(res){
+      onClose();
+     }
+    }else if(!type){
+      setMessage("❌ Please Fill the type...")
+    }else {
+      setMessage("Refresh the Page and Try again ...")
+    }
   };
 
   return (

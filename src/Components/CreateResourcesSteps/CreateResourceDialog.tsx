@@ -17,39 +17,36 @@ const CreateResourceDialog = ({
   resourceId,
   handleEditRequest,
   onClose,
+  open, // ✅ Passed from parent
 }: {
   onClose: () => void;
+  open: boolean;
   handleEditRequest?: boolean;
   resourceId?: string;
 }) => {
-  const [open, setOpen] = useState(true);
   const [languageDialog, setLanguageDialog] = useState("");
   const [className, setClassName] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState<string>("");
   const dispatch = useDispatch();
 
-  const handleClose = () => setOpen(false);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     let trimmedLang = languageDialog.trim();
     const trimmedClass = className.trim();
     let trimmedSubj = subject.trim();
 
-    const onlyLettersAndSpaces = /^[A-Za-z\s]+$/;
-    const validSubject = /^[A-Za-z\s\-]+$/;
-    const validClass = /^[0-9]{1,2}(th|st|nd|rd)?$/i;
+    const validLanguage = /^[A-Za-z0-9\s\+\-]+$/; 
 
-    // Validations
-    if (!trimmedLang || trimmedLang.length < 2 || !onlyLettersAndSpaces.test(trimmedLang)) {
-      setMessage("Please enter a valid language name (letters only, min 2 characters)");
+    const validSubject = /^[A-Za-z0-9\s\+\-]+$/; 
+
+    if (!trimmedLang || trimmedLang.length < 2 || !validLanguage.test(trimmedLang)) {
+      setMessage("Please enter a valid language name (letters, numbers, spaces allowed)");
       return;
     }
 
-    if (!trimmedClass || !validClass.test(trimmedClass)) {
-      setMessage("Please enter a valid class (e.g., 10, 12th)");
+    if (!trimmedClass) {
+      setMessage("Class field cannot be empty");
       return;
     }
 
@@ -64,17 +61,18 @@ const CreateResourceDialog = ({
     }
 
     if (handleEditRequest && resourceId) {
-      await EditResource({
+      const res = await EditResource({
         id: resourceId,
         at: "resources",
         data: { lan: trimmedLang, class: trimmedClass, subj: trimmedSubj },
         dispatch,
+        setMessage,
       });
-      onClose();
+      if (res) onClose();
       return;
     }
 
-    await CreateResource({
+    const res = await CreateResource({
       lan: trimmedLang,
       className: trimmedClass,
       subj: trimmedSubj,
@@ -82,13 +80,11 @@ const CreateResourceDialog = ({
       setMessage,
     });
 
-    onClose();
+    if (res) onClose();
   };
 
-
-
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <motion.div
         initial={{ opacity: 0, scale: 0.9, y: -30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -106,8 +102,17 @@ const CreateResourceDialog = ({
             {handleEditRequest ? "Edit Resource" : "Create Resource"}
           </DialogTitle>
 
-          <DialogContent sx={{ backgroundColor: "#F9FAFB", display: "flex", justifyContent: "center", margin: "20px" }} style={{ padding: "10px" }}>
-            <Box display="flex" flexDirection="column" gap={2} width={"100%"}>
+          <DialogContent
+            sx={{
+              backgroundColor: "#F9FAFB",
+              display: "flex",
+              justifyContent: "center",
+              m: 2,
+              p: 1,
+            }}
+            style={{ padding: "13px" }}
+          >
+            <Box display="flex" flexDirection="column" gap={2} width="100%">
               <TextField
                 label="Language"
                 value={languageDialog}
@@ -117,9 +122,9 @@ const CreateResourceDialog = ({
                 variant="outlined"
                 InputLabelProps={{ shrink: true }}
                 sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&:hover fieldset': { borderColor: "#0E6BB0" },
-                    '&.Mui-focused fieldset': { borderColor: "#0E6BB0" },
+                  "& .MuiOutlinedInput-root": {
+                    "&:hover fieldset": { borderColor: "#0E6BB0" },
+                    "&.Mui-focused fieldset": { borderColor: "#0E6BB0" },
                   },
                 }}
               />
@@ -132,9 +137,9 @@ const CreateResourceDialog = ({
                 variant="outlined"
                 InputLabelProps={{ shrink: true }}
                 sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&:hover fieldset': { borderColor: "#0E6BB0" },
-                    '&.Mui-focused fieldset': { borderColor: "#0E6BB0" },
+                  "& .MuiOutlinedInput-root": {
+                    "&:hover fieldset": { borderColor: "#0E6BB0" },
+                    "&.Mui-focused fieldset": { borderColor: "#0E6BB0" },
                   },
                 }}
               />
@@ -147,9 +152,9 @@ const CreateResourceDialog = ({
                 variant="outlined"
                 InputLabelProps={{ shrink: true }}
                 sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&:hover fieldset': { borderColor: "#0E6BB0" },
-                    '&.Mui-focused fieldset': { borderColor: "#0E6BB0" },
+                  "& .MuiOutlinedInput-root": {
+                    "&:hover fieldset": { borderColor: "#0E6BB0" },
+                    "&.Mui-focused fieldset": { borderColor: "#0E6BB0" },
                   },
                 }}
               />
@@ -158,12 +163,12 @@ const CreateResourceDialog = ({
 
           <DialogActions sx={{ backgroundColor: "#F9FAFB", px: 3, py: 2 }}>
             <Button
-              onClick={handleClose}
+              onClick={onClose}
               sx={{
                 color: "#0E6BB0",
                 borderRadius: 2,
                 fontWeight: "bold",
-                '&:hover': { backgroundColor: "#e6f0fa" },
+                "&:hover": { backgroundColor: "#e6f0fa" },
               }}
             >
               Cancel
@@ -176,7 +181,7 @@ const CreateResourceDialog = ({
                 color: "#000",
                 fontWeight: "bold",
                 borderRadius: 2,
-                '&:hover': { backgroundColor: "#fcd45d" },
+                "&:hover": { backgroundColor: "#fcd45d" },
               }}
             >
               {handleEditRequest ? "Update" : "Create"}
@@ -187,7 +192,7 @@ const CreateResourceDialog = ({
             <Typography
               className="px-4 pb-4"
               variant="body2"
-              sx={{ color: "green", fontWeight: 500 }}
+              sx={{ color: "red", fontWeight: 500 }}
             >
               {message}
             </Typography>

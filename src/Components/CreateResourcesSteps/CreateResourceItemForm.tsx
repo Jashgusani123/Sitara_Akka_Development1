@@ -37,38 +37,55 @@ const CreateResourceItemForm = ({ subDataId, onClose, id, handleEditRequest }: P
     setLoading(true);
 
     if (handleEditRequest && id) {
-      await EditResource({
+      const res = await EditResource({
         id,
         at: 'resource-items',
         data: { name, type, subDataId, link, icon },
         key: subDataId,
-        dispatch
+        dispatch,
+        setMessage
       });
-      onClose();
-      return;
-    }
-
-    const result = await createResourceItem({
-      name,
-      icon,
-      type,
-      subDataId,
-      file: file || undefined,
-      link: link || undefined,
-      setMessage,
-      dispatch,
-    });
-
-    setLoading(false);
-
-    if (result) {
-      setMessage(" Resource Item created!");
+      if (res) {
+        setName("");
+        setType("file");
+        setMessage("");
+        setLoading(false);
+        setFile(null);
+        setIcon("");
+        setLink("");
+        onClose();
+      }
       setName("");
+      setType("file");
+      setLoading(false);
+      setFile(null);
       setIcon("");
       setLink("");
-      setFile(null);
-      onClose();
+      return;
     }
+    if (subDataId) {
+      const result = await createResourceItem({
+        name,
+        icon,
+        type,
+        subDataId,
+        file: file || undefined,
+        link: link || undefined,
+        setMessage,
+        dispatch,
+      });
+      if (result) {
+        setMessage(" Resource Item created!");
+        setName("");
+        setIcon("");
+        setLink("");
+        setFile(null);
+        onClose();
+      }
+    } else {
+      setMessage("Refresh the page and Try again...")
+    }
+    setLoading(false);
   };
 
   return (
@@ -95,7 +112,7 @@ const CreateResourceItemForm = ({ subDataId, onClose, id, handleEditRequest }: P
             {handleEditRequest ? "Edit Resource Item" : "Create Resource Item"}
           </DialogTitle>
 
-          <DialogContent sx={{ backgroundColor: "#F9FAFB",display:"flex" , justifyContent:"center" ,margin:"20px" }} style={{padding:"10px"}}>
+          <DialogContent sx={{ backgroundColor: "#F9FAFB", display: "flex", justifyContent: "center", margin: "20px" }} style={{ padding: "10px" }}>
             <Box display="flex" flexDirection="column" width={"100%"} gap={2}>
               <TextField
                 label="Name"
@@ -226,7 +243,7 @@ const CreateResourceItemForm = ({ subDataId, onClose, id, handleEditRequest }: P
             <Typography
               className="px-4 pb-4"
               variant="body2"
-              sx={{ color: "green", fontWeight: 500 }}
+              sx={{ color: "red", fontWeight: 500 }}
             >
               {message}
             </Typography>

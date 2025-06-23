@@ -58,28 +58,38 @@ export const SubDataUploadDialog = ({
         data: { name, datatype, resourceDataEntryId, link },
         dispatch,
         key: resourceDataEntryId,
+        setMessage
       });
 
-      if (res === "Cannot update: linked ResourceItem still exists.") {
-        alert(res);
+      if (res) {
+        setLink("");
+        setMessage("")
+        setFile(undefined)
+        setName("")
+        onClose();
       }
-
-      onClose();
+      setLink("");
+      setFile(undefined)
+      setName("")
+      setLoading(false);
       return;
     }
 
-    await createSubData({
-      file: datatype === "file" ? file : undefined,
-      name,
-      datatype,
-      link: datatype === "link" ? link : undefined,
-      resourceDataEntryId,
-      setMessage,
-      dispatch,
-    });
-
-    setLoading(false);
-    onClose();
+    if (resourceDataEntryId) {
+      const res = await createSubData({
+        file: datatype === "file" ? file : undefined,
+        name,
+        datatype,
+        link: datatype === "link" ? link : undefined,
+        resourceDataEntryId,
+        setMessage,
+        dispatch,
+      });
+      setLoading(false);
+      if (res) {
+        onClose()
+      }
+    }
   };
 
   return (
@@ -104,7 +114,7 @@ export const SubDataUploadDialog = ({
             {handleEditRequest ? "Edit Sub Data" : "Add Sub Data"}
           </DialogTitle>
 
-          <DialogContent sx={{ backgroundColor: "#F9FAFB",display:"flex" , justifyContent:"center" ,margin:"20px" }} style={{padding:"10px"}}>
+          <DialogContent sx={{ backgroundColor: "#F9FAFB", display: "flex", justifyContent: "center", margin: "20px" }} style={{ padding: "10px" }}>
             <Box display="flex" flexDirection="column" gap={2} width={"100%"}>
               <TextField
                 label="Datatype"

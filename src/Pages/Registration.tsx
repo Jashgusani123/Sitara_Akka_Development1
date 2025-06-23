@@ -73,7 +73,8 @@ const Registration = () => {
 
   const handleRegistrationFormSubmit = async () => {
     setLoading(true);
-    const res = await RegistrationUser({ phone, firstName, lastName, age, standard, gender, dispatch });
+    const res = await RegistrationUser({ phone, firstName, lastName, age, standard, gender, dispatch , setMessage : setError});
+    setTimeout(()=>setError(""),3000)
     setLoading(false);
     if (res) {
       setMessage("Registration Successfully Done !!");

@@ -1,7 +1,7 @@
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { GetEntries } from '../../APIs/GetAPIs';
@@ -10,6 +10,8 @@ import CreateResourceDialog from '../CreateResourcesSteps/CreateResourceDialog';
 import { ResourceDataEntryDialog } from '../CreateResourcesSteps/ResourceDataEntryDialog';
 import Loading from '../Loading';
 import ResourceEntry from './ResourceEntry';
+import { Snackbar } from '@mui/material';
+import { deleteResource } from '../../APIs/PostAPIs';
 interface Props {
   expandedSubject?: string | null,
   setExpandedSubject: (id: string | null) => void,
@@ -17,7 +19,6 @@ interface Props {
   id: string,
   isAdmin?: boolean,
   subject: string,
-  handleDelete: ({ id, at, key }: { id: string, at: string, key?: string }) => void,
   setExpandedEntryId: (id: string | null) => void,
   expandedEntryId: string | null,
   expandedSubId: string | null
@@ -31,21 +32,33 @@ function Resource({
   id,
   isAdmin,
   subject,
-  handleDelete,
   expandedEntryId,
   expandedSubId
 }: Props) {
   const [showForm, setShowForm] = useState(false);
   const [currentSubId, setCurrentSubId] = useState<string | null>(null);
   const [showLoginWarning, setShowLoginWarning] = useState(false);
-  const [showFormForEdit, setshowFormForEdit] = useState(false)
+  const [showFormForEdit, setshowFormForEdit] = useState(false);
+  const [Message, setMessage] = useState('');
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const entriesMap = useSelector((state: RootState) => state.entries.entriesMap);
-  const user = useSelector((state: RootState) => state.user.user); 
+  const user = useSelector((state: RootState) => state.user.user);
 
+  useEffect(() => {
+  if (Message !== "") {
+    setOpenSnackbar(true);
+    const timer = setTimeout(() => {
+      setOpenSnackbar(false);
+      setMessage('');
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }
+}, [Message]);
   const handleEntriesRequest = (resourceId: string, subjectName: string) => {
     const token = localStorage.getItem(import.meta.env.VITE_LOCAL_STORAGE_TOKEN);
     if (!user && !token) {
@@ -67,7 +80,7 @@ function Resource({
     setExpandedSubId(null);
 
     const isAvailable = !!entriesMap[resourceId];
-    if (!isAvailable) {
+    if (!isAvailable && resourceId) {
       GetEntries({ resourceId, dispatch });
     }
   };
@@ -78,8 +91,8 @@ function Resource({
   };
   const handleRequestEdit = () => {
     setshowFormForEdit(true)
-  }
-  
+  };
+
   const entryList = entriesMap[id];
 
   return (
@@ -98,12 +111,12 @@ function Resource({
             </button>
             <button
               className="bg-red-400 text-white rounded-xl px-4 py-1 cursor-pointer hover:bg-red-500 text-sm transition"
-              onClick={() => handleDelete({ id, at: "resources" })}
+              onClick={() => deleteResource({ id, at: "resources", setMessage , dispatch })}
             >
               Delete
             </button>
             <button onClick={() => handleAddEntry(id)}>
-              <ControlPointIcon style={{ color: "black" , cursor:"pointer" }} />
+              <ControlPointIcon style={{ color: "black", cursor: "pointer" }} />
             </button>
           </div>
         )}
@@ -134,7 +147,6 @@ function Resource({
                       isAdmin={!!isAdmin}
                       expandedSubId={expandedSubId}
                       type={entry.type}
-                      handleDelete={handleDelete}
                     />
                   </div>
                 ))
@@ -157,6 +169,7 @@ function Resource({
       {showFormForEdit && (
         <CreateResourceDialog
           handleEditRequest={true}
+          open={showFormForEdit}
           resourceId={id}
           onClose={() => setshowFormForEdit(false)}
         />
@@ -182,6 +195,21 @@ function Resource({
           </div>
         </div>
       )}
+
+      <Snackbar
+        open={openSnackbar}
+        message={Message}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        ContentProps={{
+          sx: {
+            backgroundColor: "#FFD004",
+            color: "black",
+            fontWeight: "bold",
+            fontSize: "16px",
+            borderRadius: "8px",
+          },
+        }}
+      />
     </>
   );
 }
