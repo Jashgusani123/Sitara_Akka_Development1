@@ -1,34 +1,41 @@
 import {
+  Box,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  TextField,
-  Typography,
-  Box,
+  Typography
 } from "@mui/material";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { CreateResource, EditResource } from "../../APIs/PostAPIs";
 import { motion } from "framer-motion";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { CreateResource, EditResource } from "../../APIs/PostAPIs";
+import type { RootState } from "../../Redux/Store";
 
 const CreateResourceDialog = ({
   resourceId,
   handleEditRequest,
   onClose,
-  open, // ✅ Passed from parent
+  open,
 }: {
   onClose: () => void;
   open: boolean;
   handleEditRequest?: boolean;
   resourceId?: string;
 }) => {
+  const dispatch = useDispatch();
+
   const [languageDialog, setLanguageDialog] = useState("");
   const [className, setClassName] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState<string>("");
-  const dispatch = useDispatch();
+
+  const languageList = useSelector(
+    (state: RootState) => state.language.gottedLanguages
+  );
+
+  const classList = ["8", "9", "10", "11", "12"];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,35 +43,50 @@ const CreateResourceDialog = ({
     const trimmedClass = className.trim();
     let trimmedSubj = subject.trim();
 
-    const validLanguage = /^[A-Za-z0-9\s\+\-]+$/; 
+    const validLanguage = /^[A-Za-z0-9\s\+\-]+$/;
+    const validSubject = /^[A-Za-z0-9\s\+\-]+$/;
 
-    const validSubject = /^[A-Za-z0-9\s\+\-]+$/; 
-
-    if (!trimmedLang || trimmedLang.length < 2 || !validLanguage.test(trimmedLang)) {
-      setMessage("Please enter a valid language name (letters, numbers, spaces allowed)");
+    if (
+      !trimmedLang ||
+      trimmedLang.length < 2 ||
+      !validLanguage.test(trimmedLang)
+    ) {
+      setMessage("Please select or enter a valid language");
       return;
     }
 
     if (!trimmedClass) {
-      setMessage("Class field cannot be empty");
+      setMessage("Please select a class");
       return;
     }
 
-    if (!trimmedSubj || trimmedSubj.length < 2 || !validSubject.test(trimmedSubj)) {
-      setMessage("Please enter a valid subject name (letters, spaces or hyphens only)");
+    if (
+      !trimmedSubj ||
+      trimmedSubj.length < 2 ||
+      !validSubject.test(trimmedSubj)
+    ) {
+      setMessage("Please enter a valid subject name");
       return;
     }
 
     if (!handleEditRequest) {
-      trimmedLang = trimmedLang.charAt(0).toUpperCase() + trimmedLang.slice(1).toLowerCase();
-      trimmedSubj = trimmedSubj.charAt(0).toUpperCase() + trimmedSubj.slice(1).toLowerCase();
+      trimmedLang =
+        trimmedLang.charAt(0).toUpperCase() +
+        trimmedLang.slice(1).toLowerCase();
+      trimmedSubj =
+        trimmedSubj.charAt(0).toUpperCase() +
+        trimmedSubj.slice(1).toLowerCase();
     }
 
     if (handleEditRequest && resourceId) {
       const res = await EditResource({
         id: resourceId,
         at: "resources",
-        data: { lan: trimmedLang, class: trimmedClass, subj: trimmedSubj },
+        data: {
+          lan: trimmedLang,
+          class: trimmedClass,
+          subj: trimmedSubj,
+        },
         dispatch,
         setMessage,
       });
@@ -112,53 +134,102 @@ const CreateResourceDialog = ({
             }}
             style={{ padding: "13px" }}
           >
-            <Box display="flex" flexDirection="column" gap={2} width="100%">
-              <TextField
-                label="Language"
-                value={languageDialog}
-                onChange={(e) => setLanguageDialog(e.target.value)}
-                fullWidth
-                required
-                variant="outlined"
-                InputLabelProps={{ shrink: true }}
+            <Box display="flex" flexDirection="column" gap={1.5} width="100%">
+              {/* Language Dropdown */}
+              <Box>
+                <label style={{ fontWeight: "500", display: "block" }}>
+                  Language <span className="text-red-700">*</span>
+                </label>
+                <select
+                  value={languageDialog}
+                  onChange={(e) => setLanguageDialog(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "10px 12px",
+                    borderRadius: "6px",
+                    border: "1px solid #ccc",
+                    fontSize: "16px",
+                  }}
+                  required
+                >
+                  <option value="" disabled>
+                    Select Language
+                  </option>
+                  {languageList.map((lang) => (
+                    <option key={lang} value={lang}>
+                      {lang}
+                    </option>
+                  ))}
+                </select>
+              </Box>
+
+              {/* Add Language Button (no action) */}
+              <Button
+                onClick={() => { }}
                 sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "&:hover fieldset": { borderColor: "#0E6BB0" },
-                    "&.Mui-focused fieldset": { borderColor: "#0E6BB0" },
-                  },
+                  width: "fit-content",
+                  alignSelf: "flex-end",
+                  fontWeight: "bold",
+                  textTransform: "none",
+                  color: "#0E6BB0",
+                  fontSize: "0.875rem",
+                  mt: -0.5,
+                  "&:hover": { backgroundColor: "#e6f0fa" },
                 }}
-              />
-              <TextField
-                label="Class"
-                value={className}
-                onChange={(e) => setClassName(e.target.value)}
-                fullWidth
-                required
-                variant="outlined"
-                InputLabelProps={{ shrink: true }}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "&:hover fieldset": { borderColor: "#0E6BB0" },
-                    "&.Mui-focused fieldset": { borderColor: "#0E6BB0" },
-                  },
-                }}
-              />
-              <TextField
-                label="Subject"
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                fullWidth
-                required
-                variant="outlined"
-                InputLabelProps={{ shrink: true }}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "&:hover fieldset": { borderColor: "#0E6BB0" },
-                    "&.Mui-focused fieldset": { borderColor: "#0E6BB0" },
-                  },
-                }}
-              />
+              >
+                + Add Language
+              </Button>
+
+              {/* Class Dropdown */}
+              <Box>
+                <label style={{ fontWeight: "500", marginBottom: "4px", display: "block" }}>
+                  Class  <span className="text-red-700">*</span>
+                </label>
+                <select
+                  value={className}
+                  onChange={(e) => setClassName(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "10px 12px",
+                    borderRadius: "6px",
+                    border: "1px solid #ccc",
+                    fontSize: "16px",
+                  }}
+                  required
+                >
+                  <option value="" disabled>
+                    Select Class
+                  </option>
+                  {classList.map((cls) => (
+                    <option key={cls} value={cls}>
+                      {cls}
+                    </option>
+                  ))}
+                </select>
+              </Box>
+
+              {/* Subject */}
+              <Box>
+                <label style={{ fontWeight: "500", marginBottom: "4px", display: "block" }}>
+                  Subject  <span className="text-red-700">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter subject name"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  required
+                  style={{
+                    width: "100%",
+                    padding: "10px 12px",
+                    borderRadius: "6px",
+                    border: "1px solid #ccc",
+                    fontSize: "16px",
+                  }}
+                />
+              </Box>
             </Box>
+
           </DialogContent>
 
           <DialogActions sx={{ backgroundColor: "#F9FAFB", px: 3, py: 2 }}>

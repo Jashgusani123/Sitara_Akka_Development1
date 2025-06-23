@@ -15,6 +15,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = window.location.pathname;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,6 +32,7 @@ const Login = () => {
 
     if (res) {
       setMessage("Login successful");
+      navigate(location)
       setOpenSnackbar(true);
       setTimeout(() => setOpenSnackbar(false), 2000);
     }

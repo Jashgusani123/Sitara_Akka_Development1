@@ -37,7 +37,7 @@ const ResourceSubdata = ({
     const [showForm, setShowForm] = useState(false);
     const [currentSubId, setCurrentSubId] = useState<string | null>(null);
     const [showFormForEdit, setshowFormForEdit] = useState(false);
-    const [Message, setMessage] = useState('')
+    const [Message, setMessage] = useState('');
     const [openSnackbar, setOpenSnackbar] = useState(false);
 
     const resourceItemsMap = useSelector(
@@ -45,17 +45,16 @@ const ResourceSubdata = ({
     );
     const dispatch = useDispatch();
 
-     useEffect(() => {
+    useEffect(() => {
         if (Message !== "") {
-          setOpenSnackbar(true);
-          const timer = setTimeout(() => {
-            setOpenSnackbar(false);
-            setMessage('');
-          }, 4000);
-    
-          return () => clearTimeout(timer);
+            setOpenSnackbar(true);
+            const timer = setTimeout(() => {
+                setOpenSnackbar(false);
+                setMessage('');
+            }, 4000);
+            return () => clearTimeout(timer);
         }
-      }, [Message]);
+    }, [Message]);
 
     const handleResourceItemsRequest = ({
         isArray,
@@ -130,7 +129,7 @@ const ResourceSubdata = ({
                             className="bg-red-200 rounded px-2 py-1 text-xs cursor-pointer hover:bg-red-300"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                deleteResource({ id: id, at: "subdata", key: parentId, setMessage , dispatch });
+                                deleteResource({ id: id, at: "subdata", key: parentId, setMessage, dispatch });
                             }}
                         >
                             Delete

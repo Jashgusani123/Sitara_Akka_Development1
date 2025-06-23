@@ -1,29 +1,18 @@
-import { Snackbar, Tooltip } from "@mui/material";
+import { Tooltip } from "@mui/material";
 import { motion } from "framer-motion";
-import { useState } from "react";
 import { MdLogin, MdLogout } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { GetLanguages } from "../APIs/GetAPIs";
-import type { RootState } from "../Redux/Store";
-import LanguageSelector from "./LanguageSelector";
 import { clearUser } from "../Redux/Slices/userSlice";
+import type { RootState } from "../Redux/Store";
 
 const Header = ({ IsAdmin }: { IsAdmin?: boolean }) => {
-  const [selectLangBox, setSelectLangBox] = useState(false);
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [gottedLanguages] = useSelector((state: RootState) => state.language.selectedLanguage);
+
   const user = useSelector((state: RootState) => state.user.user);
   const location = window.location.pathname;
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const handleClickSelectLanguage = async () => {
-    setSelectLangBox(!selectLangBox);
-    if (gottedLanguages.length === 0 || gottedLanguages === undefined) {
-      GetLanguages({ dispatch });
-    }
-  };
 
   const handleLogoOut = ()=>{
     dispatch(clearUser());
@@ -52,19 +41,7 @@ const Header = ({ IsAdmin }: { IsAdmin?: boolean }) => {
 
 
 
-      <div className="div flex justify-between items-center w-70">
-        <Tooltip title="Select Language">
-          <motion.div
-            initial={{ opacity: 0, filter: "blur(3px)" }}
-            animate={{ opacity: 1, filter: "blur(0px)" }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            onClick={handleClickSelectLanguage}
-            className="welcome bg-[#FAC54D] flex justify-center text-black p-4 text-2xl rounded-2xl cursor-pointer"
-          >
-            Select Language
-          </motion.div>
-
-        </Tooltip>
+      <div className="div flex justify-between items-center ">
 
         {user && <Tooltip title="Logout">
 
@@ -94,21 +71,6 @@ const Header = ({ IsAdmin }: { IsAdmin?: boolean }) => {
       </div>
 
 
-      {selectLangBox && <LanguageSelector onClose={() => setSelectLangBox(false)} setOpenSnackbar={setOpenSnackbar} />}
-      <Snackbar
-        open={openSnackbar}
-        message="Language Selected!"
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-        ContentProps={{
-          sx: {
-            backgroundColor: "#FFD004",
-            color: "black",
-            fontWeight: "bold",
-            fontSize: "16px",
-            borderRadius: "8px",
-          },
-        }}
-      />
     </header>
 
   );
