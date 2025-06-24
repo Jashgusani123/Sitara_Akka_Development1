@@ -163,22 +163,6 @@ const CreateResourceDialog = ({
                 </select>
               </Box>
 
-              {/* Add Language Button (no action) */}
-              <Button
-                onClick={() => { }}
-                sx={{
-                  width: "fit-content",
-                  alignSelf: "flex-end",
-                  fontWeight: "bold",
-                  textTransform: "none",
-                  color: "#0E6BB0",
-                  fontSize: "0.875rem",
-                  mt: -0.5,
-                  "&:hover": { backgroundColor: "#e6f0fa" },
-                }}
-              >
-                + Add Language
-              </Button>
 
               {/* Class Dropdown */}
               <Box>
