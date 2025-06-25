@@ -9,7 +9,7 @@ const Banner = () => {
                 initial={{ opacity: 0, filter: "blur(3px)" }}
                 animate={{ opacity: 1, filter: "blur(0px)" }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
-                className="banner_container bg-yellow-100 border-1 border-yellow-300 rounded-4xl w-screen md:w-[40rem] lg:w-[80rem] flex-wrap flex items-center justify-center"
+                className="banner_container bg-yellow-100 border-1 border-yellow-300 rounded-4xl w-screen md:w-[40rem] lg:w-[80rem] flex-wrap flex items-center justify-center p-4"
             >
                 <motion.div
                     initial={{ x: -200, rotate: -10, opacity: 0 }}

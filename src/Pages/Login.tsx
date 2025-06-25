@@ -38,9 +38,6 @@ const Login = () => {
     }
   };
 
-  const handleRegistrationRequest = () => {
-    navigate("/registration");
-  };
 
   return (
     <>
@@ -95,12 +92,6 @@ const Login = () => {
             )}
           </button>
 
-          <span className='flex justify-center text-black w-full items-center gap-2'>
-            I haven't an Account,
-            <button className='text-blue-800 cursor-pointer' onClick={handleRegistrationRequest}>
-              Registration
-            </button>
-          </span>
         </form>
 
         {message && (

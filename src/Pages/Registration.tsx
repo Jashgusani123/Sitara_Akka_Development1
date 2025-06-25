@@ -20,6 +20,7 @@ const Registration = () => {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const location = window.location.pathname;
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -52,7 +53,7 @@ const Registration = () => {
 
     if (res) {
       setMessage("Registration Successfully Done !!");
-      navigate("/login");
+      navigate("/login" ,  { state: { from: location } });
     }
   };
 
@@ -134,10 +135,7 @@ const Registration = () => {
           </button>
         </form>
 
-        <span className='flex justify-center mt-6 items-center gap-2'>
-          Already have an account?
-          <button className='text-blue-800 cursor-pointer' onClick={() => navigate("/login")}>Login</button>
-        </span>
+        
       </div>
     </div>
   );

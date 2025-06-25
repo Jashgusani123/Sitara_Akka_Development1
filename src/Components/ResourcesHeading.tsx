@@ -10,113 +10,117 @@ import { motion } from "framer-motion";
 import { GetLanguages } from '../APIs/GetAPIs';
 import LanguageSelector from './LanguageSelector';
 
-
 const ResourcesHeading = () => {
-    const [search, setSearch] = useState("");
-    const [originalResources, setOriginalResources] = useState<any[]>([]);
-    const navigate = useNavigate();
-    const location = window.location.pathname;
-    const dispatch = useDispatch();
-    const resources = useSelector((state: RootState) => state.resources.resources);
+  const [search, setSearch] = useState("");
+  const [originalResources, setOriginalResources] = useState<any[]>([]);
+  const navigate = useNavigate();
+  const location = window.location.pathname;
+  const dispatch = useDispatch();
+  const resources = useSelector((state: RootState) => state.resources.resources);
   const [selectLangBox, setSelectLangBox] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [gottedLanguages] = useSelector((state: RootState) => state.language.selectedLanguage);
-    const handleBackClick = () => {
-        const isAdmin = location.split("/")[1] === "admin";
-        if (isAdmin) {
-            navigate("/admin/dashbord");
-        } else {
-            navigate("/");
-        }
-    };
+  const [gottedLanguages] = useSelector((state: RootState) => state.language.gottedLanguages);
 
-    const handleSearch = useCallback(
-        debounce((value: string) => {
-            if (value.trim() === "") {
-                dispatch(setResources(originalResources.length ? originalResources : resources)); // restore original
-                return;
-            }
+  const handleBackClick = () => {
+    const isAdmin = location.split("/")[1] === "admin";
+    if (isAdmin) {
+      navigate("/admin/dashbord");
+    } else {
+      navigate("/");
+    }
+  };
 
-            const normalize = (str: string) => str.toLowerCase().replace(/\s+/g, "");
-
-            const filteredResources = (originalResources.length ? originalResources : resources).filter(r =>
-                normalize(r.lan).includes(normalize(value)) ||
-                normalize(r.subj).includes(normalize(value)) ||
-                normalize(r.class).includes(normalize(value))
-            );
-
-
-            dispatch(setResources(filteredResources));
-        }, 300),
-        [resources, originalResources, dispatch]
-    );
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setSearch(value);
-
-        if (!search && resources.length) {
-            setOriginalResources(resources);
-        }
-
-        handleSearch(value);
-    };
-
-    const handleClear = () => {
-        setSearch("");
+  const handleSearch = useCallback(
+    debounce((value: string) => {
+      if (value.trim() === "") {
         dispatch(setResources(originalResources.length ? originalResources : resources));
-    };
+        return;
+      }
 
-    const handleClickSelectLanguage = async () => {
+      const normalize = (str: string) => str.toLowerCase().replace(/\s+/g, "");
+      const filteredResources = (originalResources.length ? originalResources : resources).filter(r =>
+        normalize(r.lan).includes(normalize(value)) ||
+        normalize(r.subj).includes(normalize(value)) ||
+        normalize(r.class).includes(normalize(value))
+      );
+
+      dispatch(setResources(filteredResources));
+    }, 300),
+    [resources, originalResources, dispatch]
+  );
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearch(value);
+
+    if (!search && resources.length) {
+      setOriginalResources(resources);
+    }
+
+    handleSearch(value);
+  };
+
+  const handleClear = () => {
+    setSearch("");
+    dispatch(setResources(originalResources.length ? originalResources : resources));
+  };
+
+  const handleClickSelectLanguage = async () => {
     setSelectLangBox(!selectLangBox);
     if (gottedLanguages.length === 0 || gottedLanguages === undefined) {
       GetLanguages({ dispatch });
     }
   };
 
-    return (
-        <>
-        <div className="w-full flex justify-between p-4 gap-4 items-center">
-            <div
-                className="left_options bg-[#FAC54D] cursor-pointer rounded-2xl p-4 hover:bg-[#0E6BB0] transition-colors duration-300 ease-in-out"
-                onClick={handleBackClick}
+  return (
+    <>
+      <div className="w-full flex flex-wrap justify-center gap-4 items-center p-4">
+        {/* Back Button */}
+        <div
+          className="bg-[#FAC54D] cursor-pointer rounded-2xl p-4 hover:bg-[#0E6BB0] transition-colors duration-300"
+          onClick={handleBackClick}
+        >
+          <SlArrowLeft className="w-6 h-6" />
+        </div>
+
+        {/* Search Bar */}
+        <div className="flex flex-wrap gap-2 items-center flex-1 min-w-[250px] sm:min-w-[300px] md:min-w-[400px]">
+          <input
+            type="text"
+            placeholder="Search Here..."
+            className="rounded-2xl w-full bg-blue-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300"
+            value={search}
+            onChange={handleChange}
+          />
+          {search && (
+            <button
+              onClick={handleClear}
+              className="text-sm sm:text-base text-blue-700 bg-amber-200 px-3 py-1 rounded hover:bg-gray-100 transition"
             >
-                <SlArrowLeft className="w-6 h-6" />
-            </div>
+              Clear
+            </button>
+          )}
+        </div>
 
-            <div className="right_options flex gap-2 items-center">
-                <input
-                    type="text"
-                    placeholder="Search Here..."
-                    className="rounded-2xl w-96 bg-blue-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300"
-                    value={search}
-                    onChange={handleChange}
-                />
-
-
-                {search && <button
-                    onClick={handleClear}
-                    className="text-xl text-blue-700 cursor-pointer bg-amber-200 px-3 py-1 rounded hover:bg-gray-100 transition"
-                >
-                    Clear
-                </button>}
-
-            </div>
-            <Tooltip title="Select Language">
+        {/* Select Language Button */}
+        <Tooltip title="Select Language">
           <motion.div
             initial={{ opacity: 0, filter: "blur(3px)" }}
             animate={{ opacity: 1, filter: "blur(0px)" }}
             transition={{ duration: 0.8, ease: "easeOut" }}
             onClick={handleClickSelectLanguage}
-            className="welcome bg-[#FAC54D] flex justify-center text-black p-4 text-2xl rounded-2xl cursor-pointer"
+            className="bg-[#FAC54D] flex justify-center text-black p-4 text-sm sm:text-base rounded-2xl cursor-pointer"
           >
             Select Language
           </motion.div>
-
         </Tooltip>
-        </div>
-        {selectLangBox && <LanguageSelector onClose={() => setSelectLangBox(false)} setOpenSnackbar={setOpenSnackbar} />}
-       <Snackbar
+      </div>
+
+      {/* Language Box */}
+      {selectLangBox && <LanguageSelector onClose={() => setSelectLangBox(false)} setOpenSnackbar={setOpenSnackbar} />}
+
+      {/* Snackbar */}
+      <Snackbar
         open={openSnackbar}
         message="Language Selected!"
         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
@@ -129,9 +133,9 @@ const ResourcesHeading = () => {
             borderRadius: "8px",
           },
         }}
-      /> 
-      </>
-    );
+      />
+    </>
+  );
 };
 
 export default ResourcesHeading;
