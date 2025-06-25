@@ -5,6 +5,9 @@ import { RegistrationUser } from '../APIs/PostAPIs';
 import Logo from '../assets/Logo.png';
 import Image from '../assets/Register Image.png';
 import { CircularProgress } from '@mui/material';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+
+
 
 const Registration = () => {
   const navigate = useNavigate();
@@ -20,7 +23,6 @@ const Registration = () => {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const location = window.location.pathname;
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -53,7 +55,7 @@ const Registration = () => {
 
     if (res) {
       setMessage("Registration Successfully Done !!");
-      navigate("/login" ,  { state: { from: location } });
+      navigate("/login" );
     }
   };
 
@@ -71,6 +73,13 @@ const Registration = () => {
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
+          <span
+            onClick={() => navigate("/")}
+            className="absolute left-4 top-4 cursor-pointer text-black hover:scale-110 transition-transform duration-200"
+            title="Go back"
+          >
+            <KeyboardArrowLeftIcon fontSize="large" />
+          </span>
           <input
             type="tel"
             value={phone}

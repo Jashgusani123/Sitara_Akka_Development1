@@ -15,22 +15,26 @@ interface Props {
   expandedEntryId: string,
   setExpandedEntryId: (id: string | null) => void,
   setExpandedSubId: (id: string | null) => void,
+  setExpandedItemId: (id: string | null) => void,
   id: string,
   isAdmin: boolean,
   type: string,
   parentId: string;
-  expandedSubId: string | null
+  expandedSubId: string | null;
+  expandedItemId: string | null;
 }
 
 const ResourceEntry = ({
   expandedEntryId,
   setExpandedEntryId,
   setExpandedSubId,
+  setExpandedItemId,
   id,
   isAdmin,
   type,
   parentId,
-  expandedSubId
+  expandedSubId,
+  expandedItemId,
 }: Props) => {
 
   const [showForm, setShowForm] = useState(false);
@@ -123,11 +127,14 @@ const ResourceEntry = ({
                         <ResourceSubdata
                           isArray={isArray}
                           isSubExpanded={isSubExpanded}
+                          expandedItemId={expandedItemId}
                           type={sub.datatype}
                           link={sub.link}
                           setExpandedSubId={setExpandedSubId}
+                          setExpandedItemId={setExpandedItemId}
                           id={sub._id}
                           parentId={id}
+                          outerParentId ={parentId}
                           isAdmin={isAdmin}
                           subject={sub.name}
                         />

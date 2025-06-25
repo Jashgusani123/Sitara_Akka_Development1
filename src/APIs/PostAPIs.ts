@@ -8,7 +8,6 @@ import { appendSubdata, removeSubDataById, updateSubDataById } from "../Redux/Sl
 import { setUser } from "../Redux/Slices/userSlice";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
-
 export const CreateResource = async ({
     lan,
     className,
@@ -16,7 +15,7 @@ export const CreateResource = async ({
     dispatch,
     setMessage
 }: {
-    lan: string,
+    lan: string,    
     className: string,
     subj: string,
     dispatch: ReduxDispatch,
@@ -239,7 +238,7 @@ export const EditResource = async ({ id, at, dispatch, key, data, setMessage }: 
             },
 
         });
-        
+
         if (at === 'resources') {
             dispatch(updateResourceById(response.data.resource));
         } else if (at === 'resource-data-entries' && key) {
@@ -256,7 +255,7 @@ export const EditResource = async ({ id, at, dispatch, key, data, setMessage }: 
                 setMessage("Refresh the page and Try again...")
                 break;
             case 409:
-                setMessage("❌ "+ error.response.data.message)
+                setMessage("❌ " + error.response.data.message)
                 break;
             case 400:
                 setMessage("❌ " + error.response.data.message)
@@ -284,7 +283,7 @@ export const RegistrationUser = async ({
     standard: string;
     gender: string;
     dispatch: ReduxDispatch;
-    setMessage : (msg:string) => void;
+    setMessage: (msg: string) => void;
 }) => {
     try {
         const response = await axios.post(`${BASE_URL}/api/register`, {
@@ -306,34 +305,42 @@ export const RegistrationUser = async ({
         dispatch(setUser(response.data.user));
         return true;
     } catch (error: any) {
-        if(error.response.status === 409){
+        if (error.response.status === 409) {
             setMessage("User with this phone number already exists")
         }
         return false;
     }
 };
 
-export const LoginUser = async ({ phone, dispatch, setMessage }: { phone: string, dispatch: ReduxDispatch, setMessage: (msg: string) => void; }) => {
-    try {
-        const response = await axios.post(`${BASE_URL}/api/login`, {
-            phoneNumber: phone,
+export const LoginUser = async ({
+  phone,
+  dispatch,
+  setMessage,
+}: {
+  phone: string;
+  dispatch: ReduxDispatch;
+  setMessage: (msg: string) => void;
+}) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/api/login`, {
+      phoneNumber: phone,
+    });
 
-        });
+    const { token, isAlreadyPresent, user } = response.data;
 
-        if (response.status !== 200) {
-            console.log("Server error:", response.statusText);
-            return false;
-        }
-
-        const { token } = response.data;
-
-        localStorage.setItem(import.meta.env.VITE_LOCAL_STORAGE_TOKEN, token);
-        dispatch(setUser(response.data.user))
-        return true;
-    } catch (error: any) {
-        if(error.response.status === 404){
-            setMessage("Account Not Available..")
-        }
-        return false;
+    if (isAlreadyPresent) {
+      localStorage.setItem(import.meta.env.VITE_LOCAL_STORAGE_TOKEN, token);
+      dispatch(setUser(user));
+      return { success: true, isAlreadyPresent: true };
+    } else {
+      return { success: true, isAlreadyPresent: false };
     }
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      setMessage("Account Not Available..");
+    } else {
+      setMessage("Login failed");
+    }
+    return { success: false };
+  }
 };

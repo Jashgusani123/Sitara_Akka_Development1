@@ -23,11 +23,7 @@ const ResourcesHeading = () => {
 
   const handleBackClick = () => {
     const isAdmin = location.split("/")[1] === "admin";
-    if (isAdmin) {
-      navigate("/admin/dashbord");
-    } else {
-      navigate("/");
-    }
+    navigate(isAdmin ? "/admin/dashbord" : "/");
   };
 
   const handleSearch = useCallback(
@@ -67,56 +63,60 @@ const ResourcesHeading = () => {
 
   const handleClickSelectLanguage = async () => {
     setSelectLangBox(!selectLangBox);
-    if (gottedLanguages.length === 0 || gottedLanguages === undefined) {
+    if (!gottedLanguages || gottedLanguages.length === 0) {
       GetLanguages({ dispatch });
     }
   };
 
   return (
     <>
-      <div className="w-full flex flex-wrap justify-center gap-4 items-center p-4">
-        {/* Back Button */}
-        <div
-          className="bg-[#FAC54D] cursor-pointer rounded-2xl p-4 hover:bg-[#0E6BB0] transition-colors duration-300"
-          onClick={handleBackClick}
-        >
-          <SlArrowLeft className="w-6 h-6" />
-        </div>
+      <div className="w-full flex flex-col gap-4 items-center justify-center px-4 py-6">
+        {/* Back + Search + Clear (Row in mobile & desktop) */}
+        <div className="w-full flex flex-wrap sm:flex-nowrap items-center justify-center sm:justify-between gap-2">
+          {/* Back Button */}
+          <div
+            className="bg-[#FAC54D] rounded-xl p-2 hover:bg-[#0E6BB0] transition-colors duration-300 cursor-pointer flex-shrink-0"
+            onClick={handleBackClick}
+          >
+            <SlArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+          </div>
 
-        {/* Search Bar */}
-        <div className="flex flex-wrap gap-2 items-center flex-1 min-w-[250px] sm:min-w-[300px] md:min-w-[400px]">
+          {/* Search Input */}
           <input
             type="text"
             placeholder="Search Here..."
-            className="rounded-2xl w-full bg-blue-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300"
+            className="flex-grow min-w-[200px] sm:min-w-[250px] md:min-w-[300px] bg-blue-300 px-4 py-2 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-300"
             value={search}
             onChange={handleChange}
           />
+
+          {/* Clear Button */}
           {search && (
             <button
               onClick={handleClear}
-              className="text-sm sm:text-base text-blue-700 bg-amber-200 px-3 py-1 rounded hover:bg-gray-100 transition"
+              className="text-sm text-blue-700 bg-amber-200 px-3 py-1 rounded hover:bg-gray-100 transition"
             >
               Clear
             </button>
           )}
         </div>
 
-        {/* Select Language Button */}
+        {/* Select Language - below in mobile, inline in desktop if needed */}
         <Tooltip title="Select Language">
           <motion.div
             initial={{ opacity: 0, filter: "blur(3px)" }}
             animate={{ opacity: 1, filter: "blur(0px)" }}
             transition={{ duration: 0.8, ease: "easeOut" }}
             onClick={handleClickSelectLanguage}
-            className="bg-[#FAC54D] flex justify-center text-black p-4 text-sm sm:text-base rounded-2xl cursor-pointer"
+            className="bg-[#FAC54D] text-black px-5 py-2 text-sm sm:text-base rounded-2xl cursor-pointer"
           >
             Select Language
           </motion.div>
         </Tooltip>
       </div>
 
-      {/* Language Box */}
+
+      {/* Language Selector */}
       {selectLangBox && <LanguageSelector onClose={() => setSelectLangBox(false)} setOpenSnackbar={setOpenSnackbar} />}
 
       {/* Snackbar */}

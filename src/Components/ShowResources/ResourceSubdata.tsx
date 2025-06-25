@@ -10,36 +10,52 @@ import ResourceItem from "./ResourceItem";
 import { SubDataUploadDialog } from '../CreateResourcesSteps/SubDataUploadDialog';
 import { Snackbar } from '@mui/material';
 import { deleteResource } from '../../APIs/PostAPIs';
+import { useLocation, useNavigate } from 'react-router-dom';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+
 
 interface Props {
     isArray?: boolean | undefined;
     isSubExpanded: boolean;
     setExpandedSubId: (id: string | null) => void;
+    setExpandedItemId: (id: string | null) => void;
     id: string;
     isAdmin?: boolean;
     subject: string;
     parentId: string;
     type: string;
-    link: string | undefined
+    link: string | undefined;
+    outerParentId: string;
+    expandedItemId: string | null;
+
 }
 
 const ResourceSubdata = ({
     isArray,
     isSubExpanded,
     setExpandedSubId,
+    setExpandedItemId,
     id,
     isAdmin,
     subject,
     type,
     parentId,
-    link
+    link,
+    outerParentId,
+    expandedItemId
 }: Props) => {
     const [showForm, setShowForm] = useState(false);
     const [currentSubId, setCurrentSubId] = useState<string | null>(null);
     const [showFormForEdit, setshowFormForEdit] = useState(false);
     const [Message, setMessage] = useState('');
     const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [showLoginWarning, setShowLoginWarning] = useState(false);
+    const [pendingLink, setPendingLink] = useState<string | null>(null);
 
+    // Access auth state
+    const isAuthenticated = useSelector((state: RootState) => state.user.user);
+    const navigate = useNavigate();
+    const location = useLocation();
     const resourceItemsMap = useSelector(
         (state: RootState) => state.resourceItems.resourceItemsMap
     );
@@ -89,15 +105,21 @@ const ResourceSubdata = ({
         <>
             <div className="flex justify-between items-center">
                 {type === "link" && link ? (
-                    <a
-                        href={link}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    <div
                         className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer"
+                        onClick={() => {
+                            if (isAuthenticated) {
+                                window.open(link, "_blank");
+                            } else {
+                                setPendingLink(link ?? "");
+                                setShowLoginWarning(true);
+                            }
+                        }}
                     >
                         <span>{subject}</span>
                         <span>({type})</span>
-                    </a>
+                    </div>
+
                 ) : (
                     <div
                         className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer"
@@ -164,6 +186,8 @@ const ResourceSubdata = ({
                                 {resourceItemsMap[id].length > 0 ? (
                                     resourceItemsMap[id].map((item) => (
                                         <ResourceItem
+                                            setExpandedItemId={setExpandedItemId}
+                                            expandedItemId={expandedItemId}
                                             key={item._id}
                                             id={item._id}
                                             name={item.name}
@@ -171,6 +195,8 @@ const ResourceSubdata = ({
                                             isAdmin={isAdmin}
                                             type={item.type}
                                             parentId={id}
+                                            entryId={parentId}
+                                            resourceId={outerParentId}
                                         />
                                     ))
                                 ) : (
@@ -221,6 +247,31 @@ const ResourceSubdata = ({
                     },
                 }}
             />
+
+            {showLoginWarning && (
+                <div className="fixed top-0 left-0 w-full h-full bg-black/40 flex items-center justify-center z-50">
+                    <div className="bg-amber-100 rounded-lg shadow-lg p-6 text-center">
+                        <h2 className="text-xl font-semibold mb-2 flex items-center gap-1">
+                            <InfoOutlinedIcon fontSize='large' /> Login Required
+                        </h2>
+                        <p className="text-gray-600 mb-4">You need to log in to view this content.</p>
+                        <button
+                            onClick={() => {
+                                navigate("/login", { state: { from: location, externalLink: pendingLink, data: { subDataId: id, entryId: parentId, resourceId: outerParentId } } });
+                            }}
+                            className="bg-blue-700 cursor-pointer text-white px-4 py-2 rounded hover:bg-blue-700 hover:scale-105"
+                        >
+                            Go to Login
+                        </button>
+                        <button
+                            onClick={() => setShowLoginWarning(false)}
+                            className="ml-4 bg-zinc-700 px-4 py-2 rounded text-white cursor-pointer hover:scale-105"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
         </>
     );
 };
