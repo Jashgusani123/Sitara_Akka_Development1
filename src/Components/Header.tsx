@@ -6,10 +6,9 @@ import { useNavigate } from "react-router-dom";
 import { clearUser } from "../Redux/Slices/userSlice";
 import type { RootState } from "../Redux/Store";
 
-const Header = ({ IsAdmin }: { IsAdmin?: boolean }) => {
+const Header = () => {
 
   const user = useSelector((state: RootState) => state.user.user);
-  const location = window.location.pathname;
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -25,16 +24,6 @@ const Header = ({ IsAdmin }: { IsAdmin?: boolean }) => {
         animate={{ opacity: 1, filter: "blur(0px)" }}
         transition={{ duration: 0.8, ease: "easeOut" }}
         className="welcome bg-[#0E6BB0] flex justify-center text-white p-4 text-2xl rounded-2xl"
-        onClick={() => {
-          const isAdmin = location.split("/")[1] === "admin";
-          if (isAdmin) {
-            navigate("/");
-          } else if (!IsAdmin) {
-            navigate("/")
-          } else {
-            navigate("/admin/dashbord");
-          }
-        }}
       >
         <p>Welcome</p>
       </motion.div>

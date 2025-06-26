@@ -97,7 +97,7 @@ export const GetResourceItems = async ({
     if (response.statusText !== "OK") {
       return false;
     }
-    if (Array.isArray(response.data.items) && response.data.items.length !== 0) {
+    if (response.data.items) {
       dispatch(setResourceItemsMap({ key: subDataId, items: response.data.items }));
     }
     return true;

@@ -1,15 +1,11 @@
-import ControlPointIcon from '@mui/icons-material/ControlPoint';
+import { Snackbar } from '@mui/material';
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { GetSubdata } from '../../APIs/GetAPIs';
 import type { RootState } from '../../Redux/Store';
-import { SubDataUploadDialog } from '../CreateResourcesSteps/SubDataUploadDialog';
-import ResourceSubdata from './ResourceSubdata';
-import { ResourceDataEntryDialog } from '../CreateResourcesSteps/ResourceDataEntryDialog';
-import { Snackbar } from '@mui/material';
-import { deleteResource } from '../../APIs/PostAPIs';
 import Loading from '../Loading';
+import ResourceSubdata from './ResourceSubdata';
 
 interface Props {
   expandedEntryId: string,
@@ -17,7 +13,6 @@ interface Props {
   setExpandedSubId: (id: string | null) => void,
   setExpandedItemId: (id: string | null) => void,
   id: string,
-  isAdmin: boolean,
   type: string,
   parentId: string;
   expandedSubId: string | null;
@@ -30,16 +25,12 @@ const ResourceEntry = ({
   setExpandedSubId,
   setExpandedItemId,
   id,
-  isAdmin,
   type,
   parentId,
   expandedSubId,
   expandedItemId,
 }: Props) => {
 
-  const [showForm, setShowForm] = useState(false);
-  const [showFormForEdit, setshowFormForEdit] = useState(false);
-  const [currentSubId, setCurrentSubId] = useState<string | null>(null);
   const [Message, setMessage] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
@@ -68,10 +59,6 @@ const ResourceEntry = ({
     }
   };
 
-  const handleAddEntry = (resourceDataEntryId: string) => {
-    setCurrentSubId(resourceDataEntryId);
-    setShowForm(true);
-  }
 
   const currentSubData = subDataMap[id] || [];
 
@@ -81,26 +68,6 @@ const ResourceEntry = ({
         <span className="text-gray-700 font-medium cursor-pointer" onClick={() => handleSubdataFetch(id)}>
           {type}
         </span>
-        {isAdmin && (
-          <div className="flex gap-2">
-            <button className="bg-green-300 rounded-xl px-3 py-1 hover:bg-green-400 cursor-pointer text-sm transition" onClick={() => setshowFormForEdit(true)}>
-              Edit
-            </button>
-            <button
-              className="bg-red-300 rounded-xl px-3 py-1 hover:bg-red-400 cursor-pointer text-sm transition"
-              onClick={() => {
-                if (parentId) {
-                  deleteResource({ id, at: "resource-data-entries", key: parentId, setMessage, dispatch })
-                }
-              }}
-            >
-              Delete
-            </button>
-            <button onClick={() => handleAddEntry(id)}>
-              <ControlPointIcon style={{ color: "black", cursor: "pointer" }} />
-            </button>
-          </div>
-        )}
       </div>
 
       <AnimatePresence>
@@ -135,7 +102,6 @@ const ResourceEntry = ({
                           id={sub._id}
                           parentId={id}
                           outerParentId ={parentId}
-                          isAdmin={isAdmin}
                           subject={sub.name}
                         />
                       </div>
@@ -152,22 +118,6 @@ const ResourceEntry = ({
         )}
 
       </AnimatePresence>
-
-      {showForm && currentSubId && (
-        <SubDataUploadDialog
-          resourceDataEntryId={currentSubId}
-          onClose={() => setShowForm(false)}
-        />
-      )}
-
-      {showFormForEdit && (
-        <ResourceDataEntryDialog
-          entryId={id}
-          handleEditRequest={true}
-          resourceId={parentId}
-          onClose={() => setshowFormForEdit(false)}
-        />
-      )}
 
       <Snackbar
         open={openSnackbar}

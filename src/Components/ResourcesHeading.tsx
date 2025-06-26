@@ -14,7 +14,6 @@ const ResourcesHeading = () => {
   const [search, setSearch] = useState("");
   const [originalResources, setOriginalResources] = useState<any[]>([]);
   const navigate = useNavigate();
-  const location = window.location.pathname;
   const dispatch = useDispatch();
   const resources = useSelector((state: RootState) => state.resources.resources);
   const [selectLangBox, setSelectLangBox] = useState(false);
@@ -22,8 +21,7 @@ const ResourcesHeading = () => {
   const [gottedLanguages] = useSelector((state: RootState) => state.language.gottedLanguages);
 
   const handleBackClick = () => {
-    const isAdmin = location.split("/")[1] === "admin";
-    navigate(isAdmin ? "/admin/dashbord" : "/");
+    navigate("/");
   };
 
   const handleSearch = useCallback(

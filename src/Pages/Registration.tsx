@@ -6,14 +6,14 @@ import Logo from '../assets/Logo.png';
 import Image from '../assets/Register Image.png';
 import { CircularProgress } from '@mui/material';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
-
-
+import { useLocation } from 'react-router-dom';
 
 const Registration = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  const [phone, setPhone] = useState('');
+  const location = useLocation();
+  const isNumber = location.state?.number ?? '';
+  const [phone, setPhone] = useState(isNumber);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [age, setAge] = useState<number>(1);
@@ -22,11 +22,8 @@ const Registration = () => {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-
 
     if (!/^\d{10}$/.test(phone)) {
       return setError('Phone number must be 10 digits');
@@ -49,15 +46,39 @@ const Registration = () => {
     }
 
     setLoading(true);
-    const res = await RegistrationUser({ phone, firstName, lastName, age, standard, gender, dispatch, setMessage: setError });
-    setTimeout(() => setError(""), 3000);
+    const res = await RegistrationUser({
+      phone,
+      firstName,
+      lastName,
+      age,
+      standard,
+      gender,
+      dispatch,
+      setMessage: setError,
+    });
+    setTimeout(() => setError(''), 3000);
     setLoading(false);
 
     if (res) {
-      setMessage("Registration Successfully Done !!");
-      navigate("/login" );
+      setMessage('Registration Successfully Done !!');
+
+      setTimeout(() => {
+        const targetLink = location.state?.externalLink;
+        if (targetLink) {
+          window.open(targetLink, '_blank');
+        }
+
+        const redirectTo = location.state?.from || '/';
+        const extraState = location.state?.data;
+
+        navigate(redirectTo, {
+          replace: true,
+          state: { reset: true, data: extraState },
+        });
+      }, 500);
     }
   };
+
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-100 via-blue-50 to-white p-4">
@@ -68,7 +89,6 @@ const Registration = () => {
           <img src={Logo} alt="Logo" className="h-16 w-16 border-3 border-[#0E6BB0] object-contain bg-zinc-100 rounded-2xl" />
           <div className='flex justify-start flex-col'>
             <h2 className="text-3xl text-black items-start flex justify-start font-bold uppercase">Registration</h2>
-            <p className='text-zinc-600'>If you already have an account, login instead.</p>
           </div>
         </div>
 
@@ -83,10 +103,14 @@ const Registration = () => {
           <input
             type="tel"
             value={phone}
-            onChange={(e) => setPhone(e.target.value.trim())}
+            onChange={(e) => {
+              if (!isNumber) setPhone(e.target.value.trim());
+            }}
             placeholder="Phone Number"
             required
-            className="w-full p-3 border border-gray-300 rounded-xl"
+            maxLength={10}
+            readOnly={!!isNumber} // lock if number was passed
+            className={`w-full p-3 border border-gray-300 rounded-xl ${isNumber ? 'bg-gray-100 cursor-not-allowed' : ''}`}
           />
 
           <input
@@ -111,6 +135,7 @@ const Registration = () => {
             onChange={(e) => setAge(Number(e.target.value))}
             placeholder="Age"
             min={1}
+            max={100}
             className="w-full p-3 border border-gray-300 rounded-xl"
           />
 
@@ -144,7 +169,7 @@ const Registration = () => {
           </button>
         </form>
 
-        
+
       </div>
     </div>
   );

@@ -52,6 +52,7 @@ const Login = () => {
 
         const redirectTo = location.state?.from?.pathname || "/";
         const extraState = location.state?.data;
+        
         navigate(redirectTo, {
           replace: true,
           state: { reset: true, data: extraState },
@@ -61,16 +62,15 @@ const Login = () => {
     else{
         const extraState = location.state?.data;
         const redirectTo = location.state?.from?.pathname || "/";
+        const targetLink = location.state?.externalLink;
 
       navigate("/registration" , {
           replace: true,
-          state: { from:redirectTo,reset: true, data: extraState },
+          state: { from:redirectTo,reset: true, data: extraState ,  externalLink:targetLink , number:res.number},
         });
     }
 
   };
-
-
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-blue-100 via-blue-50 to-white p-6">
@@ -94,7 +94,6 @@ const Login = () => {
           <img src={Logo} alt="Logo" className="h-16 w-16 border-3 border-[#FAC54D] object-contain bg-zinc-100 rounded-2xl" />
           <div className="flex flex-col justify-start">
             <h2 className="text-3xl items-start flex justify-start text-black font-bold">LOGIN</h2>
-            <p className="text-zinc-600">If Already Have an Account.</p>
           </div>
         </div>
 
@@ -104,6 +103,7 @@ const Login = () => {
         <input
           type="tel"
           value={phone}
+          maxLength={10}
           onChange={(e) => setPhone(e.target.value.trim())}
           placeholder="Enter Phone Number"
           className="w-full p-3 rounded-lg text-black border focus:outline-none focus:ring-2 focus:ring-white"
@@ -112,7 +112,7 @@ const Login = () => {
 
         <button
           type="submit"
-          className="w-full bg-[#FAC54D] hover:bg-yellow-200 text-black font-semibold py-2 rounded-lg transition flex justify-center items-center gap-2 disabled:opacity-50"
+          className="w-full bg-[#FAC54D] hover:bg-yellow-200 text-black font-semibold py-2 rounded-lg transition flex justify-center cursor-pointer items-center gap-2 disabled:opacity-50"
           disabled={loading}
         >
           {loading ? (

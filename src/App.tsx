@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
-import AdminLanding from './Pages/AdminLanding';
-import AdminResources from './Pages/AdminResources';
 import Home from './Pages/Home';
 import Login from './Pages/Login';
 import Registration from './Pages/Registration';
@@ -10,7 +8,6 @@ import Resources from './Pages/Resources';
 import type { RootState } from './Redux/Store';
 
 const App = () => {
-  const [IsAdmin, setIsAdmin] = useState(false);
   const [IsUser, setIsUser] = useState(false);
   const [Checking, setChecking] = useState(true);
   const User = useSelector((state: RootState) => state.user.user);
@@ -21,15 +18,10 @@ const App = () => {
     if (User && token) {
       if (User.role === "USER") {
         setIsUser(true);
-        setIsAdmin(false);
-      } else if (User.role === "ADMIN") {
-        setIsAdmin(true);
-        setIsUser(false);
-      }
+      } 
     } else if (!User && token) {
       localStorage.removeItem(import.meta.env.VITE_LOCAL_STORAGE_TOKEN);
     } else {
-      setIsAdmin(false);
       setIsUser(false);
     }
 
@@ -51,17 +43,7 @@ const App = () => {
           </>
         )}
 
-        {/* ADMIN Routes */}
-        {IsAdmin && (
-          <>
-            <Route path="/admin/dashbord" element={<AdminLanding />} />
-            <Route path="/admin/resources" element={<AdminResources />} />
-            <Route path="*" element={<Navigate to="/admin/dashbord" replace />} />
-          </>
-        )}
-
-        {/* Unauthenticated - public */}
-        {!IsAdmin && !IsUser && (
+        {!IsUser && (
           <>
             <Route path="/" element={<Home />} />
             <Route path="/resources" element={<Resources />} />

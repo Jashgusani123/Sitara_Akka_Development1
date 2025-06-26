@@ -4,22 +4,19 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { GetSubjects } from "../APIs/GetAPIs";
 import type { RootState } from "../Redux/Store";
-import CreateResourceDialog from "./CreateResourcesSteps/CreateResourceDialog";
 import LanguageSelector from "./LanguageSelector";
 import Loading from "./Loading";
 import Resource from "./ShowResources/Resource";
 
-const ResourcesMain = ({ isAdmin }: { isAdmin?: boolean }) => {
+const ResourcesMain = () => {
     const [expandedSubject, setExpandedSubject] = useState<string | null>(null);
     const [expandedEntryId, setExpandedEntryId] = useState<string | null>(null);
     const [expandedSubId, setExpandedSubId] = useState<string | null>(null);
     const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
     const [expandedSubjectLoading, setExpandedSubjectLoading] = useState<boolean>(true);
     const [message, setMessage] = useState<string>("");
-    const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
     const [SelectLangDialog, setSelectLangDialog] = useState<boolean>(false);
     const [openSnackbar, setOpenSnackbar] = useState(false);
-
     const language = useSelector((state: RootState) => state.language.selectedLanguage);
     const allSubjects = useSelector((state: RootState) => state.resources.resources);
 
@@ -42,29 +39,24 @@ const ResourcesMain = ({ isAdmin }: { isAdmin?: boolean }) => {
         fetchResources();
     }, [language]);
 
-    const handleCreateResourceBTN = () => {
-        setIsDialogOpen(true);
-    };
-
     useEffect(() => {
         const reset = location.state?.reset;
         const data = location.state?.data;
 
-        if (reset && data) {
-            setExpandedSubject(data.resourceId);
-            setExpandedEntryId(data.entryId);
-            setExpandedSubId(data.subdataId);
-            setExpandedItemId(data.resourceItemId ?? null); // Optional, if you want to use this
-        }
+        if (reset || data) {
 
-        // Clean up state
-        if (reset) {
-            navigate(location.pathname, { replace: true, state: {} });
+            setTimeout(() => {
+                setExpandedSubject(data.resourceId);
+                setExpandedEntryId(data.entryId);
+                setExpandedSubId(data.subDataId);
+                setExpandedItemId(data.resourceItemId ?? null);
+
+                
+                navigate(location.pathname, { replace: true, state: {} });
+
+            }, 0); 
         }
     }, [location]);
-
-    console.log(expandedSubject , expandedEntryId , expandedSubId , expandedItemId);
-    
 
 
     return (
@@ -73,15 +65,7 @@ const ResourcesMain = ({ isAdmin }: { isAdmin?: boolean }) => {
                 <h2 className="text-3xl font-bold flex-wrap text-gray-800 px-2">
                     Resources {language && <span className="text-zinc-400">({language})</span>}
                 </h2>
-                {isAdmin && (
-                    <button
-                        className={`bg-[#0e6bb0] border-2 border-white cursor-pointer text-white rounded-[10px] text-2xl p-2 `}
-                        disabled={!language}
-                        onClick={handleCreateResourceBTN}
-                    >
-                        Create Resource
-                    </button>
-                )}
+
             </div>
 
             <section className="bg-[#0E6BB0] h-auto rounded-2xl p-4">
@@ -97,7 +81,6 @@ const ResourcesMain = ({ isAdmin }: { isAdmin?: boolean }) => {
                                         setExpandedSubId={setExpandedSubId}
                                         setExpandedItemId={setExpandedItemId}
                                         id={i._id}
-                                        isAdmin={isAdmin}
                                         subject={i.subj}
                                         expandedEntryId={expandedEntryId}
                                         expandedSubId={expandedSubId}
@@ -131,16 +114,6 @@ const ResourcesMain = ({ isAdmin }: { isAdmin?: boolean }) => {
                     setOpenSnackbar={setOpenSnackbar}
                     onClose={() => {
                         setSelectLangDialog(false);
-                        fetchResources();
-                    }}
-                />
-            )}
-
-            {isDialogOpen && (
-                <CreateResourceDialog
-                    open={isDialogOpen}
-                    onClose={() => {
-                        setIsDialogOpen(false);
                         fetchResources();
                     }}
                 />

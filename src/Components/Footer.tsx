@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { MdWhatsapp } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 
-const Footer = ({ admin, onlyLast }: { admin?: boolean; onlyLast?: boolean }) => {
+const Footer = ({ onlyLast }: {  onlyLast?: boolean }) => {
   const navigate = useNavigate();
 
   const handleWhatsappChat = () => {
@@ -10,11 +10,7 @@ const Footer = ({ admin, onlyLast }: { admin?: boolean; onlyLast?: boolean }) =>
   };
 
   const handleResorcesShow = () => {
-    if (admin) {
-      navigate("/admin/resources");
-    } else {
       navigate("/resources");
-    }
   };
 
   return (

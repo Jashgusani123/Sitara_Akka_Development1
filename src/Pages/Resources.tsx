@@ -10,7 +10,7 @@ const Resources = () => {
                 <ResourcesMain />
             </div>
             <div className="footer_container p-4">
-                <Footer admin={false} onlyLast={true} />
+                <Footer onlyLast={true} />
             </div>
         </>
     )

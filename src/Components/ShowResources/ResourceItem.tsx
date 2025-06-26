@@ -1,16 +1,13 @@
-import { useEffect, useState } from "react";
-import { Snackbar } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useLocation } from "react-router-dom";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { Snackbar } from "@mui/material";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import { deleteResource } from "../../APIs/PostAPIs";
-import CreateResourceItemForm from "../CreateResourcesSteps/CreateResourceItemForm";
 import type { RootState } from "../../Redux/Store";
 
 interface Props {
     id: string;
-    isAdmin: boolean | undefined;
     name: string;
     type: string;
     parentId: string;
@@ -23,7 +20,6 @@ interface Props {
 
 const ResourceItem = ({
     id,
-    isAdmin,
     name,
     type,
     parentId,
@@ -33,14 +29,12 @@ const ResourceItem = ({
     expandedItemId,
     setExpandedItemId
 }: Props) => {
-    const [showFormForEdit, setshowFormForEdit] = useState(false);
     const [message, setMessage] = useState('');
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [showLoginWarning, setShowLoginWarning] = useState(false);
     const [pendingLink, setPendingLink] = useState<string | null>(null);
 
     const isAuthenticated = useSelector((state: RootState) => state.user.user);
-    const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -65,7 +59,7 @@ const ResourceItem = ({
     const handleLinkClick = () => {
         if (isAuthenticated) {
             if (link) {
-                setExpandedItemId(id); // highlight on click
+                setExpandedItemId(id); // still keep this for functionality
                 window.open(link, "_blank");
             }
         } else {
@@ -73,20 +67,15 @@ const ResourceItem = ({
             setShowLoginWarning(true);
         }
     };
-   
-
-    const isSelected = expandedItemId === id;
 
     return (
         <>
             <li
                 key={id}
                 id={`resource-item-${id}`}
-                className={`flex justify-between items-center rounded px-2 py-1 border 
-                    ${isSelected ? "bg-yellow-100 border-yellow-500" : "bg-white border-gray-300"}
-                    text-gray-700 transition`}
+                className={`flex justify-between items-center rounded px-2 py-1 border bg-white border-gray-300 text-gray-700 transition`}
             >
-                <div className={`flex ${isAdmin ? "flex-col" : "flex-row w-full justify-between items-center"}`}>
+                <div className="flex flex-row w-full justify-between items-center">
                     {type === "link" ? (
                         <span className="cursor-pointer" onClick={handleLinkClick}>
                             {name}
@@ -96,35 +85,7 @@ const ResourceItem = ({
                     )}
                     <span className="text-xs text-gray-500">{type.toUpperCase()}</span>
                 </div>
-
-                {isAdmin && (
-                    <div className="flex gap-2">
-                        <button
-                            className="bg-green-200 rounded px-2 py-1 text-xs cursor-pointer hover:bg-green-300"
-                            onClick={() => setshowFormForEdit(true)}
-                        >
-                            Edit
-                        </button>
-                        <button
-                            className="bg-red-200 rounded px-2 py-1 text-xs cursor-pointer hover:bg-red-300"
-                            onClick={() =>
-                                deleteResource({ id, at: "resource-items", key: parentId, setMessage, dispatch })
-                            }
-                        >
-                            Delete
-                        </button>
-                    </div>
-                )}
             </li>
-
-            {showFormForEdit && (
-                <CreateResourceItemForm
-                    subDataId={parentId}
-                    id={id}
-                    handleEditRequest={true}
-                    onClose={() => setshowFormForEdit(false)}
-                />
-            )}
 
             <Snackbar
                 open={openSnackbar}
@@ -164,7 +125,7 @@ const ResourceItem = ({
                                     },
                                 });
                             }}
-                            className="bg-blue-700 cursor-pointer text-white px-4 py-2 rounded hover:bg-blue-700 hover:scale-105"
+                            className="bg-blue-700 cursor-pointer text-white px-4 py-2 rounded hover:scale-105"
                         >
                             Go to Login
                         </button>

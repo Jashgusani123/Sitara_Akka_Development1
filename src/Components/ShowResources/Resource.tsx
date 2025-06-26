@@ -1,13 +1,9 @@
-import ControlPointIcon from '@mui/icons-material/ControlPoint';
 import { Snackbar } from '@mui/material';
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { GetEntries } from '../../APIs/GetAPIs';
-import { deleteResource } from '../../APIs/PostAPIs';
 import type { RootState } from '../../Redux/Store';
-import CreateResourceDialog from '../CreateResourcesSteps/CreateResourceDialog';
-import { ResourceDataEntryDialog } from '../CreateResourcesSteps/ResourceDataEntryDialog';
 import Loading from '../Loading';
 import ResourceEntry from './ResourceEntry';
 
@@ -17,7 +13,6 @@ interface Props {
   setExpandedSubId: (id: string | null) => void,
   setExpandedItemId: (id: string | null) => void,
   id: string,
-  isAdmin?: boolean,
   subject: string,
   setExpandedEntryId: (id: string | null) => void,
   expandedEntryId: string | null,
@@ -32,15 +27,11 @@ function Resource({
   setExpandedSubId,
   setExpandedItemId,
   id,
-  isAdmin,
   subject,
   expandedEntryId,
   expandedSubId,
   expandedItemId
 }: Props) {
-  const [showForm, setShowForm] = useState(false);
-  const [currentSubId, setCurrentSubId] = useState<string | null>(null);
-  const [showFormForEdit, setshowFormForEdit] = useState(false);
   const [Message, setMessage] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
@@ -78,15 +69,6 @@ function Resource({
     }
   };
 
-  const handleAddEntry = (resourceId: string) => {
-    setCurrentSubId(resourceId);
-    setShowForm(true);
-  };
-
-  const handleRequestEdit = () => {
-    setshowFormForEdit(true);
-  };
-
   const entryList = entriesMap[id];
 
   return (
@@ -98,25 +80,7 @@ function Resource({
         >
           {subject}
         </span>
-        {isAdmin && (
-          <div className="flex gap-2">
-            <button
-              className="bg-green-400 text-white rounded-xl px-4 py-1 cursor-pointer hover:bg-green-500 text-sm transition"
-              onClick={handleRequestEdit}
-            >
-              Edit
-            </button>
-            <button
-              className="bg-red-400 text-white rounded-xl px-4 py-1 cursor-pointer hover:bg-red-500 text-sm transition"
-              onClick={() => deleteResource({ id, at: "resources", setMessage, dispatch })}
-            >
-              Delete
-            </button>
-            <button onClick={() => handleAddEntry(id)}>
-              <ControlPointIcon style={{ color: "black", cursor: "pointer" }} />
-            </button>
-          </div>
-        )}
+
       </div>
 
       <AnimatePresence>
@@ -143,7 +107,6 @@ function Resource({
                       setExpandedItemId={setExpandedItemId}
                       parentId={id}
                       id={entry._id}
-                      isAdmin={!!isAdmin}
                       expandedSubId={expandedSubId}
                       type={entry.type}
                     />
@@ -159,21 +122,6 @@ function Resource({
         )}
       </AnimatePresence>
 
-      {showForm && currentSubId && (
-        <ResourceDataEntryDialog
-          resourceId={currentSubId}
-          onClose={() => setShowForm(false)}
-        />
-      )}
-
-      {showFormForEdit && (
-        <CreateResourceDialog
-          handleEditRequest={true}
-          open={showFormForEdit}
-          resourceId={id}
-          onClose={() => setshowFormForEdit(false)}
-        />
-      )}
 
       <Snackbar
         open={openSnackbar}
