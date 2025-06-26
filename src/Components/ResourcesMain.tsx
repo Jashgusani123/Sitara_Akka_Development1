@@ -30,6 +30,7 @@ const ResourcesMain = () => {
             setMessage("First, Please Select Language, ");
             return;
         }
+        setExpandedSubjectLoading(true)
         await GetSubjects({ lan: language, dispatch });
         setMessage("Language Selected !!");
         setExpandedSubjectLoading(false);
