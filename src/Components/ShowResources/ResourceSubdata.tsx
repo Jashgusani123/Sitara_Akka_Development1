@@ -103,7 +103,7 @@ const ResourceSubdata = ({
                     }
                 }}
             >
-                <div className="flex items-center gap-2 text-sm text-gray-700">
+                <div className="flex items-center flex-wrap gap-2 text-sm text-gray-700">
                     {isArray && (
                         <span className="text-xs">{isSubExpanded ? "▼" : "►"}</span>
                     )}
@@ -163,24 +163,26 @@ const ResourceSubdata = ({
             />
 
             {showLoginWarning && (
-                <div className="fixed top-0 left-0 w-full h-full bg-black/40 flex items-center justify-center z-50">
+                 <div className="fixed top-0 left-0 w-full h-full bg-black/40 flex items-center justify-center z-50">
                     <div className="bg-amber-100 rounded-lg shadow-lg p-6 text-center">
-                        <h2 className="text-xl font-semibold mb-2 flex items-center gap-1">
+                        <h2 className="text-xl font-semibold mb-2 flex flex-wrap justify-center items-center gap-1">
                             <InfoOutlinedIcon fontSize='large' /> Login Required
                         </h2>
                         <p className="text-gray-600 mb-4">You need to log in to view this content.</p>
+                        <div className="loginFrom_buttons flex justify-center items-center ">
                         <button
                             onClick={() => {
                                 navigate("/login", {
                                     state: {
                                         from: location,
                                         externalLink: pendingLink,
+                                        resetOnReturn: true,
                                         data: {
                                             subDataId: id,
                                             entryId: parentId,
                                             resourceId: outerParentId
                                         }
-                                    }
+                                    },
                                 });
                             }}
                             className="bg-blue-700 cursor-pointer text-white px-4 py-2 rounded hover:scale-105"
@@ -193,6 +195,7 @@ const ResourceSubdata = ({
                         >
                             Cancel
                         </button>
+                        </div>
                     </div>
                 </div>
             )}

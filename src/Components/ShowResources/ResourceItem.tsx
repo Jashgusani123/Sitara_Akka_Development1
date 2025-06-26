@@ -75,7 +75,7 @@ const ResourceItem = ({
                 id={`resource-item-${id}`}
                 className={`flex justify-between items-center rounded px-2 py-1 border bg-white border-gray-300 text-gray-700 transition`}
             >
-                <div className="flex flex-row w-full justify-between items-center">
+                <div className="flex flex-row flex-wrap w-full justify-between items-center">
                     {type === "link" ? (
                         <span className="cursor-pointer" onClick={handleLinkClick}>
                             {name}
@@ -103,12 +103,13 @@ const ResourceItem = ({
             />
 
             {showLoginWarning && (
-                <div className="fixed top-0 left-0 w-full h-full bg-black/40 flex items-center justify-center z-50">
+                <div className="fixed top-0 left-0 w-full h-full text-black bg-black/40 flex items-center justify-center z-50">
                     <div className="bg-amber-100 rounded-lg shadow-lg p-6 text-center">
-                        <h2 className="text-xl font-semibold mb-2 flex items-center gap-1">
+                        <h2 className="text-xl font-semibold mb-2 flex flex-wrap justify-center items-center gap-1">
                             <InfoOutlinedIcon fontSize='large' /> Login Required
                         </h2>
                         <p className="text-gray-600 mb-4">You need to log in to view this content.</p>
+                        <div className="loginFrom_buttons flex justify-center items-center ">
                         <button
                             onClick={() => {
                                 navigate("/login", {
@@ -135,6 +136,7 @@ const ResourceItem = ({
                         >
                             Cancel
                         </button>
+                        </div>
                     </div>
                 </div>
             )}
