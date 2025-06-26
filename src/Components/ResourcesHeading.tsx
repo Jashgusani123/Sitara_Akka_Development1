@@ -37,10 +37,9 @@ const ResourcesHeading = () => {
         dispatch(setResources(originalResources.length ? originalResources : resources));
         return;
       }
-
+      
       const normalize = (str: string) => str.toLowerCase().replace(/\s+/g, "");
       const filteredResources = (originalResources.length ? originalResources : resources).filter(r =>
-        normalize(r.lan).includes(normalize(value)) ||
         normalize(r.subj).includes(normalize(value)) ||
         normalize(r.class).includes(normalize(value))
       );
