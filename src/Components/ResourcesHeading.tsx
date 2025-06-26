@@ -4,11 +4,14 @@ import { SlArrowLeft } from "react-icons/sl";
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import type { RootState } from '../Redux/Store';
-import { setResources } from '../Redux/Slices/resourcesSlice';
+import { clearResources, setResources } from '../Redux/Slices/resourcesSlice';
 import { Snackbar, Tooltip } from '@mui/material';
 import { motion } from "framer-motion";
 import { GetLanguages } from '../APIs/GetAPIs';
 import LanguageSelector from './LanguageSelector';
+import { clearResourceItemsMap } from '../Redux/Slices/resourceItemsSlice';
+import { clearSubDataMap } from '../Redux/Slices/subDataSlice';
+import { clearAllEntries } from '../Redux/Slices/entriesSlice';
 
 const ResourcesHeading = () => {
   const [search, setSearch] = useState("");
@@ -20,7 +23,11 @@ const ResourcesHeading = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [gottedLanguages] = useSelector((state: RootState) => state.language.gottedLanguages);
 
-  const handleBackClick = () => {
+  const handleBackClick = async () => {
+    dispatch(clearResourceItemsMap());
+    dispatch(clearSubDataMap());
+    dispatch(clearAllEntries());
+    dispatch(clearResources());
     navigate("/");
   };
 
