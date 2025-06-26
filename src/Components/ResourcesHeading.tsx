@@ -70,9 +70,9 @@ const ResourcesHeading = () => {
 
   return (
     <>
-      <div className="w-full flex flex-col gap-4 items-center justify-center px-4 py-6">
-        {/* Back + Search + Clear (Row in mobile & desktop) */}
-        <div className="w-full flex flex-wrap sm:flex-nowrap items-center justify-center sm:justify-between gap-2">
+      <div className="w-full flex p-4 flex-col sm:flex-row md:flex-row md:items-center md:justify-between gap-2">
+        {/* Row with Back + Search + Clear */}
+        <div className="w-full flex items-center justify-center md:justify-start gap-2">
           {/* Back Button */}
           <div
             className="bg-[#FAC54D] rounded-xl p-2 hover:bg-[#0E6BB0] transition-colors duration-300 cursor-pointer flex-shrink-0"
@@ -85,7 +85,7 @@ const ResourcesHeading = () => {
           <input
             type="text"
             placeholder="Search Here..."
-            className="flex-grow min-w-[200px] sm:min-w-[250px] md:min-w-[300px] bg-blue-300 px-4 py-2 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-300"
+            className="w-full sm:w-[180px] md:w-[350px] lg:w-[400px] bg-blue-300 px-4 py-2 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-300"
             value={search}
             onChange={handleChange}
           />
@@ -101,20 +101,21 @@ const ResourcesHeading = () => {
           )}
         </div>
 
-        {/* Select Language - below in mobile, inline in desktop if needed */}
-        <Tooltip title="Select Language">
-          <motion.div
-            initial={{ opacity: 0, filter: "blur(3px)" }}
-            animate={{ opacity: 1, filter: "blur(0px)" }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            onClick={handleClickSelectLanguage}
-            className="bg-[#FAC54D] text-black px-5 py-2 text-sm sm:text-base rounded-2xl cursor-pointer"
-          >
-            Select Language
-          </motion.div>
-        </Tooltip>
+        {/* Select Language Button (goes below on md+) */}
+        <div className="flex justify-center sm:justify-end md:justify-end w-full">
+          <Tooltip title="Select Language">
+            <motion.div
+              initial={{ opacity: 0, filter: "blur(3px)" }}
+              animate={{ opacity: 1, filter: "blur(0px)" }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              onClick={handleClickSelectLanguage}
+              className="bg-[#FAC54D] text-black px-5 py-2 text-sm sm:text-base rounded-2xl cursor-pointer"
+            >
+              Select Language
+            </motion.div>
+          </Tooltip>
+        </div>
       </div>
-
 
       {/* Language Selector */}
       {selectLangBox && <LanguageSelector onClose={() => setSelectLangBox(false)} setOpenSnackbar={setOpenSnackbar} />}
