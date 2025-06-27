@@ -89,7 +89,7 @@ const ResourceEntry = ({
                     return (
                       <div
                         key={sub._id}
-                        className="flex flex-col gap-1 bg-white px-3 py-2 rounded-md border border-gray-200"
+                        className="flex flex-col gap-1 bg-blue-200 border-1 border-blue-400 px-3 py-2 rounded-md "
                       >
                         <ResourceSubdata
                           isArray={isArray}

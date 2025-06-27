@@ -1,3 +1,5 @@
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Snackbar } from '@mui/material';
 import { AnimatePresence, motion } from "framer-motion";
@@ -8,6 +10,7 @@ import { GetResourceItems } from "../../APIs/GetAPIs";
 import type { RootState } from "../../Redux/Store";
 import Loading from "../Loading";
 import ResourceItem from "./ResourceItem";
+
 
 interface Props {
     isArray?: boolean | undefined;
@@ -105,7 +108,7 @@ const ResourceSubdata = ({
             >
                 <div className="flex items-center flex-wrap gap-2 text-sm text-gray-700">
                     {isArray && (
-                        <span className="text-xs">{isSubExpanded ? "▼" : "►"}</span>
+                        <span className="text-xs">{isSubExpanded ? <ArrowDropDownIcon  fontSize={"small"}/> : <ArrowRightIcon fontSize={"small"}/>}</span>
                     )}
                     <span>{subject}</span>
                     <span>({type})</span>
@@ -119,7 +122,7 @@ const ResourceSubdata = ({
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="mt-2 bg-zinc-100 rounded p-2 text-sm text-gray-600"
+                        className="mt-2 bg-yellow-100 border-1 border-yellow-300 rounded p-2 text-sm text-gray-600"
                     >
                         <ul className="space-y-1">
                             {!Object.prototype.hasOwnProperty.call(resourceItemsMap, id) ? (

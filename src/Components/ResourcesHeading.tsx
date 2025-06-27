@@ -1,27 +1,26 @@
 import { debounce } from 'lodash';
 import { useCallback, useState } from 'react';
 import { SlArrowLeft } from "react-icons/sl";
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import type { RootState } from '../Redux/Store';
 import { clearResources, setResources } from '../Redux/Slices/resourcesSlice';
-import { Snackbar, Tooltip } from '@mui/material';
-import { motion } from "framer-motion";
-import { GetLanguages } from '../APIs/GetAPIs';
-import LanguageSelector from './LanguageSelector';
+import type { RootState } from '../Redux/Store';
+// import { Snackbar } from '@mui/material';
+// import { motion } from "framer-motion";
+// import { GetLanguages } from '../APIs/GetAPIs';
+// import LanguageSelector from './LanguageSelector';
+import { clearAllEntries } from '../Redux/Slices/entriesSlice';
 import { clearResourceItemsMap } from '../Redux/Slices/resourceItemsSlice';
 import { clearSubDataMap } from '../Redux/Slices/subDataSlice';
-import { clearAllEntries } from '../Redux/Slices/entriesSlice';
 
-const ResourcesHeading = () => {
-  const [search, setSearch] = useState("");
+const ResourcesHeading = ({search , setSearch}:{search:string , setSearch:(val:string)=>void}) => {
   const [originalResources, setOriginalResources] = useState<any[]>([]);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const resources = useSelector((state: RootState) => state.resources.resources);
-  const [selectLangBox, setSelectLangBox] = useState(false);
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [gottedLanguages] = useSelector((state: RootState) => state.language.gottedLanguages);
+  // const [selectLangBox, setSelectLangBox] = useState(false);
+  // const [openSnackbar, setOpenSnackbar] = useState(false);
+  // const [gottedLanguages] = useSelector((state: RootState) => state.language.gottedLanguages);
 
   const handleBackClick = async () => {
     dispatch(clearResourceItemsMap());
@@ -65,21 +64,20 @@ const ResourcesHeading = () => {
     dispatch(setResources(originalResources.length ? originalResources : resources));
   };
 
-  const handleClickSelectLanguage = async () => {
-    setSelectLangBox(!selectLangBox);
-    if (!gottedLanguages || gottedLanguages.length === 0) {
-      GetLanguages({ dispatch });
-    }
-  };
+  // const handleClickSelectLanguage = async () => {
+  //   setSelectLangBox(!selectLangBox);
+  //   if (!gottedLanguages || gottedLanguages.length === 0) {
+  //     GetLanguages({ dispatch });
+  //   }
+  // };
 
   return (
     <>
       <div className="w-full flex p-4 flex-col sm:flex-row md:flex-row md:items-center md:justify-between gap-2">
-        {/* Row with Back + Search + Clear */}
         <div className="w-full flex items-center justify-center md:justify-start gap-2">
           {/* Back Button */}
           <div
-            className="bg-[#FAC54D] rounded-xl p-2 hover:bg-[#0E6BB0] transition-colors duration-300 cursor-pointer flex-shrink-0"
+            className="bg-[#FAC54D] rounded-2xl p-2 hover:bg-[#0E6BB0] transition-colors duration-300 cursor-pointer flex-shrink-0"
             onClick={handleBackClick}
           >
             <SlArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -89,7 +87,7 @@ const ResourcesHeading = () => {
           <input
             type="text"
             placeholder="Search Here..."
-            className="w-full sm:w-[180px] md:w-[350px] lg:w-[400px] bg-blue-300 px-4 py-2 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-300"
+            className="w-full  md:w-[350px] lg:w-[400px] bg-blue-200 px-4 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
             value={search}
             onChange={handleChange}
           />
@@ -98,34 +96,33 @@ const ResourcesHeading = () => {
           {search && (
             <button
               onClick={handleClear}
-              className="text-sm text-blue-700 bg-amber-200 px-3 py-1 rounded hover:bg-gray-100 transition"
+              className="text-sm cursor-pointer border-blue-200 border-2 text-blue-700 bg-amber-200 px-3 py-1 rounded hover:bg-gray-100 transition"
             >
               Clear
             </button>
           )}
         </div>
-
-        {/* Select Language Button (goes below on md+) */}
-        <div className="flex justify-center sm:justify-end md:justify-end w-full">
-          <Tooltip title="Select Language">
+          {/* Client not need this */}
+        {/* <div className="flex justify-end w-full">
+          <Tooltip title="Select Language " >
             <motion.div
               initial={{ opacity: 0, filter: "blur(3px)" }}
               animate={{ opacity: 1, filter: "blur(0px)" }}
               transition={{ duration: 0.8, ease: "easeOut" }}
               onClick={handleClickSelectLanguage}
-              className="bg-[#FAC54D] text-black px-5 py-2 text-sm sm:text-base rounded-2xl cursor-pointer"
+              className="bg-[#FAC54D] text-sm font-normal hover:bg-[#ffdc8a] text-black px-5 py-2 sm:text-base rounded-2xl cursor-pointer"
             >
               Select Language
             </motion.div>
           </Tooltip>
-        </div>
+        </div> */}
       </div>
 
       {/* Language Selector */}
-      {selectLangBox && <LanguageSelector onClose={() => setSelectLangBox(false)} setOpenSnackbar={setOpenSnackbar} />}
+      {/* {selectLangBox && <LanguageSelector onClose={() => setSelectLangBox(false)} setOpenSnackbar={setOpenSnackbar} />} */}
 
       {/* Snackbar */}
-      <Snackbar
+      {/* <Snackbar
         open={openSnackbar}
         message="Language Selected!"
         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
@@ -138,7 +135,7 @@ const ResourcesHeading = () => {
             borderRadius: "8px",
           },
         }}
-      />
+      /> */}
     </>
   );
 };

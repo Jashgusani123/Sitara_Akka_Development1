@@ -97,7 +97,7 @@ function Resource({
                 entryList.map((entry) => (
                   <div
                     key={entry._id}
-                    className="flex flex-col gap-2 bg-zinc-100 px-4 py-3 rounded-lg shadow-sm"
+                    className="flex flex-col gap-2 shadow-gray-400 shadow-sm bg-yellow-100 border-1 border-yellow-200 px-4 py-3 rounded-lg "
                   >
                     <ResourceEntry
                       expandedEntryId={expandedEntryId || ""}

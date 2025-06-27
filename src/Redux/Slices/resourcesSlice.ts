@@ -37,16 +37,27 @@ const resourceSlice = createSlice({
     },
     appendResource: (state, action: PayloadAction<Resource>) => {
       const newResource = action.payload;
-
       const langExists = state.resources.some(r => r.lan === newResource.lan);
-
       if (langExists) {
         state.resources.push(newResource);
       }
     }
-
   },
 });
 
-export const { setResources, clearResources, removeResourceById, updateResourceById, appendResource } = resourceSlice.actions;
+export const {
+  setResources,
+  clearResources,
+  removeResourceById,
+  updateResourceById,
+  appendResource
+} = resourceSlice.actions;
+
 export default resourceSlice.reducer;
+export const selectUniqueClasses = (state: { resources: ResourceState }) => {
+  const classSet = new Set(state.resources.resources.map(r => r.class));
+  return Array.from(classSet);
+};
+export const selectResourceById = (id: string) => (state: { resources: ResourceState }) => {
+  return state.resources.resources.find(r => r._id === id);
+};

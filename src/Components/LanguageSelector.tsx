@@ -54,11 +54,11 @@ const LanguageSelector = ({ onClose, setOpenSnackbar }: Props) => {
     <>
       <ClickAwayListener onClickAway={() => onClose?.()}>
         <motion.div
-          initial={{ x: 300, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          exit={{ x: 300, opacity: 0 }}
-          transition={{ type: "spring", stiffness: 100 }}
-          className="absolute top-[140px] sm:top-[150px] md:top-32 lg:top-24 right-3 lg:right-4 gap-2 flex flex-col bg-zinc-300 text-blue-900 shadow-xl rounded-lg lg:w-96 w-[300px] max-w-full p-4 z-50 overflow-hidden "
+          initial={{ opacity: 0, filter: "blur(8px)" }}
+          animate={{ opacity: 1, filter: "blur(0px)" }}
+          exit={{ opacity: 0, filter: "blur(8px)" }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="absolute top-[140px] sm:top-[150px] md:top-32 lg:top-24 right-3 lg:right-4 gap-2 flex flex-col bg-zinc-300 text-blue-900 shadow-xl rounded-lg lg:w-96 w-[300px] max-w-[330px] p-4 z-50 overflow-hidden"
         >
           <div className="options w-full justify-start items-center max-w-full flex gap-2 overflow-x-auto whitespace-nowrap px-2 scroll-smooth no-scrollbar">
             {!isLoading ? <>{Languages.length !== 0 ? <>
