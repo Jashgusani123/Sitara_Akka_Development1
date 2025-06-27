@@ -73,7 +73,7 @@ const ResourcesMain = ({ search }: { search: string }) => {
                         <p className="font-semibold text-blue-800 text-xl">{language}</p>
                     </Tooltip>
                     <ArrowForwardIosIcon className="text-yellow-500" />
-
+                
                     {classes.length > 0 && (
                         <Tooltip title="Class">
                             <p className={`text-xl font-semibold ${clickedResource ? "text-blue-800" : "text-gray-700"}`}>

@@ -5,10 +5,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { clearResources, setResources } from '../Redux/Slices/resourcesSlice';
 import type { RootState } from '../Redux/Store';
-// import { Snackbar } from '@mui/material';
-// import { motion } from "framer-motion";
-// import { GetLanguages } from '../APIs/GetAPIs';
-// import LanguageSelector from './LanguageSelector';
+import { Snackbar, Tooltip } from '@mui/material';
+import { motion } from "framer-motion";
+import { GetLanguages } from '../APIs/GetAPIs';
+import LanguageSelector from './LanguageSelector';
 import { clearAllEntries } from '../Redux/Slices/entriesSlice';
 import { clearResourceItemsMap } from '../Redux/Slices/resourceItemsSlice';
 import { clearSubDataMap } from '../Redux/Slices/subDataSlice';
@@ -18,10 +18,10 @@ const ResourcesHeading = ({search , setSearch}:{search:string , setSearch:(val:s
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const resources = useSelector((state: RootState) => state.resources.resources);
-  // const [selectLangBox, setSelectLangBox] = useState(false);
-  // const [openSnackbar, setOpenSnackbar] = useState(false);
-  // const [gottedLanguages] = useSelector((state: RootState) => state.language.gottedLanguages);
-
+  const [selectLangBox, setSelectLangBox] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [gottedLanguages] = useSelector((state: RootState) => state.language.gottedLanguages);
+  const language = useSelector((state: RootState) => state.language.selectedLanguage);
   const handleBackClick = async () => {
     dispatch(clearResourceItemsMap());
     dispatch(clearSubDataMap());
@@ -64,12 +64,12 @@ const ResourcesHeading = ({search , setSearch}:{search:string , setSearch:(val:s
     dispatch(setResources(originalResources.length ? originalResources : resources));
   };
 
-  // const handleClickSelectLanguage = async () => {
-  //   setSelectLangBox(!selectLangBox);
-  //   if (!gottedLanguages || gottedLanguages.length === 0) {
-  //     GetLanguages({ dispatch });
-  //   }
-  // };
+  const handleClickSelectLanguage = async () => {
+    setSelectLangBox(!selectLangBox);
+    if (!gottedLanguages || gottedLanguages.length === 0) {
+      GetLanguages({ dispatch });
+    }
+  };
 
   return (
     <>
@@ -102,8 +102,7 @@ const ResourcesHeading = ({search , setSearch}:{search:string , setSearch:(val:s
             </button>
           )}
         </div>
-          {/* Client not need this */}
-        {/* <div className="flex justify-end w-full">
+       { language !== "" && <div className="flex justify-end w-full">
           <Tooltip title="Select Language " >
             <motion.div
               initial={{ opacity: 0, filter: "blur(3px)" }}
@@ -115,14 +114,14 @@ const ResourcesHeading = ({search , setSearch}:{search:string , setSearch:(val:s
               Select Language
             </motion.div>
           </Tooltip>
-        </div> */}
+        </div>}
       </div>
 
       {/* Language Selector */}
-      {/* {selectLangBox && <LanguageSelector onClose={() => setSelectLangBox(false)} setOpenSnackbar={setOpenSnackbar} />} */}
+      {selectLangBox && <LanguageSelector onClose={() => setSelectLangBox(false)} setOpenSnackbar={setOpenSnackbar} />}
 
       {/* Snackbar */}
-      {/* <Snackbar
+      <Snackbar
         open={openSnackbar}
         message="Language Selected!"
         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
@@ -135,7 +134,7 @@ const ResourcesHeading = ({search , setSearch}:{search:string , setSearch:(val:s
             borderRadius: "8px",
           },
         }}
-      /> */}
+      />
     </>
   );
 };
