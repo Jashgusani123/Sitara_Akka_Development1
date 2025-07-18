@@ -1,16 +1,16 @@
-import { useEffect, useState } from 'react';
-import { AnimatePresence, motion } from "framer-motion";
-import youtube from '../assets/youtube.png';
-import chapterNotes from '../assets/notes.avif';
-import formula from '../assets/formula.jpg';
-import test from '../assets/test.png';
-import passingPackage from '../assets/passingPackage.png';
-import toppersscripts from '../assets/topperAns.png';
-import { GetEntries, GetSubjects } from "../APIs/GetAPIs";
-import { useDispatch, useSelector } from "react-redux";
-import type { RootState } from "../Redux/Store";
-import { useNavigate, useLocation } from "react-router-dom";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
+import { GetEntries, GetSubjects } from "../APIs/GetAPIs";
+import formula from '../assets/formula.jpg';
+import chapterNotes from '../assets/notes.avif';
+import passingPackage from '../assets/passingPackage.png';
+import test from '../assets/test.png';
+import toppersscripts from '../assets/topperAns.png';
+import youtube from '../assets/youtube.png';
+import type { RootState } from "../Redux/Store";
 
 const resourceIcons: { [key: string]: { src: string, name: string } } = {
     youtube: { src: youtube, name: "Youtube" },
@@ -42,8 +42,10 @@ const ResourcesMain = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const toggleExpand = (id: string) => {
+    const handleSubjectClick = (id: string) => {
         setExpandedSubject(prev => (prev === id ? null : id));
+        setSelectedType(null);
+        setExpandedEntry(false);
     };
 
     useEffect(() => {
@@ -55,10 +57,24 @@ const ResourcesMain = () => {
         fetchSubjects();
     }, []);
 
+    const getCurrentPath = () => {
+        const subject = Resources.find((s) => s._id === expandedSubject);
+        const subjectPart = subject ? ` > ${subject.subj}` : "";
+        const typePart =
+            selectedType && resourceIcons[selectedType.toLowerCase()]
+                ? ` >  ${resourceIcons[selectedType.toLowerCase()].name}`
+                : "";
+
+        return `${lan || "Language"}  ${subjectPart}  ${typePart}`;
+    };
+
     const entries = entriesMap[expandedSubject || ""] || [];
 
     return (
         <main className="w-full h-auto p-4">
+            <div className="path mb-2">
+                <p className="text-lg font-medium text-gray-700">{getCurrentPath()}</p>
+            </div>
             <div className="resources_heading w-fit flex rounded-2xl p-2 items-center justify-between">
                 <h2 className="text-3xl font-bold flex-wrap text-gray-800 px-2">Subjects</h2>
             </div>
@@ -75,7 +91,7 @@ const ResourcesMain = () => {
                 Resources.map((subject) => (
                     <div key={subject._id} className="mt-4">
                         <button
-                            onClick={() => toggleExpand(subject._id)}
+                            onClick={() => handleSubjectClick(subject._id)}
                             className="w-full text-left cursor-pointer bg-yellow-300 hover:bg-yellow-400 px-4 py-3 font-semibold text-xl rounded-lg shadow"
                         >
                             {subject.subj}
@@ -90,65 +106,81 @@ const ResourcesMain = () => {
                                     transition={{ duration: 0.3 }}
                                     className="mt-2 px-3"
                                 >
-                                    <div className="grid grid-cols-3 gap-3 bg-zinc-300 p-3 rounded-md shadow-sm">
-                                        {subject.types.map((type) => {
-                                            const icon = resourceIcons[type?.toLowerCase()];
-                                            return icon ? (
-                                                <div
-                                                    key={type}
-                                                    onClick={() => {
-                                                        const willExpand = !expandedEntry;
-                                                        setExpandedEntry(willExpand);
-
-                                                        if (willExpand) {
-                                                            setSelectedType(type);
-                                                            GetEntries({ resourceId: subject._id, dispatch, type });
-                                                        } else {
-                                                            setSelectedType(null);
-                                                        }
-                                                    }}
-                                                    className="flex flex-col items-center cursor-pointer"
-                                                >
-                                                    <img
-                                                        src={icon.src}
-                                                        alt={icon.name}
-                                                        className="w-14 h-14 object-contain bg-white p-2 rounded-md"
-                                                    />
-                                                    <p className="text-xs font-semibold mt-1 text-black text-center">{icon.name}</p>
+                                    <div className="grid grid-cols-3 gap-3 bg-zinc-200 p-3 rounded-md shadow-sm">
+                                        <div className="bg-zinc-300 p-3 rounded-md shadow-sm w-full col-span-3">
+                                            {subject.types.length === 0 ? (
+                                                <div className="text-center text-gray-600 font-medium w-full py-4">
+                                                    Not Available Yet
                                                 </div>
-                                            ) : null;
-                                        })}
+                                            ) : (
+                                                <div className="flex flex-wrap justify-center gap-4">
+                                                    {subject.types.map((type) => {
+                                                        const icon = resourceIcons[type?.toLowerCase()];
+                                                        return icon ? (
+                                                            <div
+                                                                key={type}
+                                                                onClick={() => {
+                                                                    const willExpand = !expandedEntry;
+                                                                    setExpandedEntry(willExpand);
+
+                                                                    if (willExpand) {
+                                                                        setSelectedType(type);
+                                                                        GetEntries({ resourceId: subject._id, dispatch, type });
+                                                                    } else {
+                                                                        setSelectedType(null);
+                                                                    }
+                                                                }}
+                                                                className="flex flex-col items-center cursor-pointer"
+                                                            >
+                                                                <img
+                                                                    src={icon.src}
+                                                                    alt={icon.name}
+                                                                    className="w-14 h-14 object-contain bg-white p-2 rounded-md"
+                                                                />
+                                                                <p className="text-xs font-semibold mt-1 text-black text-center">{icon.name}</p>
+                                                            </div>
+                                                        ) : null;
+                                                    })}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
 
-                                    {selectedType && selectedType === entries[0]?.type && entries.length > 0 && (
-                                        <div className="mt-4 space-y-2 bg-zinc-300 p-4 rounded-md shadow-inner">
-                                            {entries.map((entryItem) => (
-                                                <div
-                                                    key={entryItem._id}
-                                                    className="bg-yellow-400 rounded-full px-4 py-2 text-start font-medium flex justify-between flex-wrap text-sm cursor-pointer hover:bg-yellow-200"
-                                                >
-                                                    <p>{entryItem.name}</p>
-                                                    <p
-                                                        onClick={() => {
-                                                            if (user && entryItem.link) {
-                                                                window.open(entryItem.link, "_blank");
-                                                            } else {
-                                                                setPendingLink(entryItem.link || null);
-                                                                setEntryMeta({
-                                                                    subDataId: entryItem._id,
-                                                                    entryId: entryItem._id,
-                                                                    resourceId: expandedSubject || ""
-                                                                });
-                                                                setShowLoginWarning(true);
-                                                            }
-                                                        }}
-                                                        className="underline text-blue-700 cursor-pointer"
+                                    {selectedType && (
+                                        entries.length > 0 ? (
+                                            <div className="mt-4 space-y-2 bg-zinc-200 p-4 rounded-md shadow-inner">
+                                                {entries.map((entryItem) => (
+                                                    <div
+                                                        key={entryItem._id}
+                                                        className="bg-yellow-400 rounded-full px-4 py-2 text-start font-medium flex justify-between flex-wrap text-sm cursor-pointer hover:bg-yellow-200"
                                                     >
-                                                        {entryItem.datatype.toLocaleUpperCase()}
-                                                    </p>
-                                                </div>
-                                            ))}
-                                        </div>
+                                                        <p>{entryItem.name}</p>
+                                                        <p
+                                                            onClick={() => {
+                                                                if (user && entryItem.link) {
+                                                                    window.open(entryItem.link, "_blank");
+                                                                } else {
+                                                                    setPendingLink(entryItem.link || null);
+                                                                    setEntryMeta({
+                                                                        subDataId: entryItem._id,
+                                                                        entryId: entryItem._id,
+                                                                        resourceId: expandedSubject || ""
+                                                                    });
+                                                                    setShowLoginWarning(true);
+                                                                }
+                                                            }}
+                                                            className="underline text-blue-700 cursor-pointer"
+                                                        >
+                                                            {entryItem.datatype.toLocaleUpperCase()}
+                                                        </p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="text-center text-gray-600 font-medium mt-4">
+                                                Not Available Yet
+                                            </div>
+                                        )
                                     )}
                                 </motion.div>
                             )}

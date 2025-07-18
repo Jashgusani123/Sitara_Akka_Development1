@@ -1,17 +1,25 @@
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Header from '../Components/Header';
 import { motion } from 'framer-motion';
 import { setGottedLanguages, setLanguage } from '../Redux/Slices/languageSlice';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { GetLanguages } from '../APIs/GetAPIs';
+import type { RootState } from '../Redux/Store';
 
 const LanguageSelect = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const lang = [
-        { name: "English" },
-        { name: "ಕನ್ನಡ" }
-    ];
+    const lang = useSelector((state:RootState)=>state.language.gottedLanguages)
+
+    useEffect(() => {
+        const fetchLang = async () => {
+            await GetLanguages({ dispatch });
+        }
+
+        fetchLang()
+    }, [])
 
     const handleLanguageSelect = (languageName: string) => {
         dispatch(setLanguage(languageName));
@@ -34,10 +42,10 @@ const LanguageSelect = () => {
                         {lang.map((language, index) => (
                             <li
                                 key={index}
-                                onClick={() => handleLanguageSelect(language.name)}
+                                onClick={() => handleLanguageSelect(language)}
                                 className='bg-[#fec21a] rounded-2xl text-3xl h-10 w-full p-2 flex justify-center items-center hover:scale-105 transition-transform duration-200 cursor-pointer'
                             >
-                                {language.name}
+                                {language}
                             </li>
                         ))}
                     </ul>
