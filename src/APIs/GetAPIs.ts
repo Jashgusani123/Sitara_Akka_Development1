@@ -33,7 +33,7 @@ export const GetSubjects = async ({
   dispatch: ReduxDispatch;
 }) => {
   try {
-    const response = await axios.get(`${BASE_URL}/api/resources/subjects?lan=${lan}`);
+    const response = await axios.get(`${BASE_URL}/api/resources/subjects/v1?lan=${lan}`);
     if (response.statusText !== "OK") {
       return false;
     }
@@ -48,16 +48,23 @@ export const GetSubjects = async ({
 export const GetEntries = async ({
   resourceId,
   dispatch,
+  type
 }: {
   resourceId: string;
+  type: string;
   dispatch: ReduxDispatch;
 }) => {
   try {
-    const response = await axios(`${BASE_URL}/api/resource-data-entries/${resourceId}`);
+     const response = await axios.get(`${BASE_URL}/api/resources/data/v1`, {
+      params: {
+        resourceId,
+        type,
+      },
+    });
     if (response.statusText !== "OK") {
       return false;
     }
-    dispatch(setEntriesForResource({ entries: response.data.entries, resourceId }));
+    dispatch(setEntriesForResource({ entries: response.data.data, resourceId }));
     return true;
   } catch (error) {
     console.error("GetEntries error:", error);

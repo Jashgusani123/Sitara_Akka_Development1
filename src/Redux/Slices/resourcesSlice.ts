@@ -6,6 +6,7 @@ interface Resource {
   lan: string;
   class: string;
   subj: string;
+  types:[string]
 }
 
 interface ResourceState {

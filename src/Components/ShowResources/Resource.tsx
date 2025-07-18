@@ -59,7 +59,7 @@ function Resource({
       return;
     }
 
-    setExpandedSubject(id); // fixed: use id, not subject
+    setExpandedSubject(id); 
     setExpandedEntryId(null);
     setExpandedSubId(null);
 

@@ -7,7 +7,7 @@ const Home = () => {
         <>
             <Header />
             <Banner />
-            <Footer />
+            <Footer onlyLast={true}/>
         </>
     );
 };

@@ -1,47 +1,81 @@
 import { motion } from "motion/react";
-import Logo from '../assets/Logo.png';
-import Image2 from '../assets/Image2.png';
+// import Logo from '../assets/Logo.png';
+import youtube from '../assets/youtube.png';
+import chapterNotes from '../assets/notes.avif';
+import formula from '../assets/formula.jpg';
+import test from '../assets/test.png';
+import passingPackage from '../assets/passingPackage.png';
+import { useNavigate } from "react-router-dom";
 const Banner = () => {
+    const navigate = useNavigate();
+    const options = [{
+        src: youtube,
+        name: "Youtube",
+    },
+    {
+        src: test,
+        name: "Previous Year Question paper",
+    },
+    {
+        src: chapterNotes,
+        name: "Chapter Notes",
+    },
+    {
+        src: formula,
+        name: "Formula",
+    },
+    {
+        src: passingPackage,
+        name: "Passing Package",
+    }
+    ]
+    const handleResorcesShow = () => {
+      navigate("/language");
+  };
     return (
-        <> 
-        <div className="w-full flex justify-center">
-            <motion.div
-                initial={{ opacity: 0, filter: "blur(3px)" }}
-                animate={{ opacity: 1, filter: "blur(0px)" }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className="banner_container bg-yellow-100 border-1 border-yellow-300 rounded-4xl p-4 w-screen md:w-[40rem] lg:w-[80rem] flex-wrap flex items-center justify-center"
-            >
+        <>
+        <motion.div
+          initial={{ x: -200, rotate: -10, opacity: 0 }}
+          animate={{ x: 0, rotate: 0, opacity: 1 }}
+          exit={{ x: -200, rotate: -10, opacity: 0 }}
+          transition={{ type: "spring", stiffness: 100 }}
+          className="w-full p-4 flex justify-around"
+        >
+          <button
+            className="bg-[#1c1c51] text-white rounded-2xl lg:text-3xl text-2xl cursor-pointer p-2 w-fit hover:scale-105 transition-transform duration-200"
+            onClick={handleResorcesShow}
+          >
+            Click here to access all 10th standard study material
+          </button>
+        </motion.div>
+            <div className="w-full flex justify-center">
                 <motion.div
-                    initial={{ x: -200, rotate: -10, opacity: 0 }}
-                    animate={{ x: 0, rotate: 0, opacity: 1 }}
-                    exit={{ x: -200, rotate: -10, opacity: 0 }}
-                    transition={{ type: "spring", stiffness: 100 }}
-                    className="w-md p-4 bg-blue-50 border-1 border-yellow-300 rounded-2xl lg:w-[43rem]"
+                    initial={{ opacity: 0, filter: "blur(3px)" }}
+                    animate={{ opacity: 1, filter: "blur(0px)" }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    className="p-4 w-screen md:w-[40rem] lg:w-[80rem]"
                 >
-                    <div className="heading w-full flex items-center">
-                        <div className="logo w-fit">
-                            <img src={Logo} alt="Logo Not found" className="h-20 w-20" />
-                        </div>
-                        <div className="text flex  w-full items-start gap-1.5">
-                            <p className="fontfirst text-4xl">Sitara</p>
-                            <p className="fontsecond text-5xl">Akka</p>
-                        </div>
-                    </div>
-                    <div className="description">
-                        <p className="">&nbsp;&nbsp;&nbsp;&nbsp;Learn with fun! Get notes, videos,  and chat with your Anna/Akka anytime. Everything you need to study, in one happy place. 😊📚</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-6 justify-items-center items-center">
+                        {options.map((option, index) => (
+                            <motion.div
+                                key={index}
+                                initial={{ scale: 0.9, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{ type: "spring", stiffness: 100 }}
+                                className="flex flex-col items-center justify-center text-center"
+                            >
+                                <img
+                                    src={option.src}
+                                    alt={option.name}
+                                    className="w-32 h-32 object-contain bg-zinc-200 p-2 rounded-lg shadow-md"
+                                />
+                                <p className="mt-2 text-sm font-medium">{option.name}</p>
+                            </motion.div>
+                        ))}
                     </div>
                 </motion.div>
-                <motion.div
-                    initial={{ x: 200, rotate: 10, opacity: 0 }}
-                    animate={{ x: 0, rotate: 0, opacity: 1 }}
-                    exit={{ x: 200, rotate: 10, opacity: 0 }}
-                    transition={{ type: "spring", stiffness: 100 }}
-                    className="w-md p-4 flex items-center justify-center"
-                >
-                    <img src={Image2} alt="" className="rounded-2xl border-3 border-blue-900  w-96" />
-                </motion.div>
-            </motion.div>
-        </div>
+            </div>
+
         </>
     )
 }

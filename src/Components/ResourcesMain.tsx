@@ -1,171 +1,199 @@
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import { Snackbar, Tooltip } from "@mui/material";
-import { motion } from "framer-motion";
 import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from "framer-motion";
+import youtube from '../assets/youtube.png';
+import chapterNotes from '../assets/notes.avif';
+import formula from '../assets/formula.jpg';
+import test from '../assets/test.png';
+import passingPackage from '../assets/passingPackage.png';
+import toppersscripts from '../assets/topperAns.png';
+import { GetEntries, GetSubjects } from "../APIs/GetAPIs";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
-import { GetSubjects } from "../APIs/GetAPIs";
-import { selectResourceById, selectUniqueClasses } from "../Redux/Slices/resourcesSlice";
 import type { RootState } from "../Redux/Store";
-import LanguageSelector from "./LanguageSelector";
-import Loading from "./Loading";
-import Resource from "./ShowResources/Resource";
-const ResourcesMain = ({ search }: { search: string }) => {
-    const [expandedSubject, setExpandedSubject] = useState<string | null>(null);
-    const [expandedEntryId, setExpandedEntryId] = useState<string | null>(null);
-    const [expandedSubId, setExpandedSubId] = useState<string | null>(null);
-    const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
-    const [expandedSubjectLoading, setExpandedSubjectLoading] = useState<boolean>(true);
-    const [message, setMessage] = useState<string>("");
-    const [SelectLangDialog, setSelectLangDialog] = useState<boolean>(false);
-    const [openSnackbar, setOpenSnackbar] = useState(false);
-    const language = useSelector((state: RootState) => state.language.selectedLanguage);
-    const allSubjects = useSelector((state: RootState) => state.resources.resources);
+import { useNavigate, useLocation } from "react-router-dom";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
-    const location = useLocation();
+const resourceIcons: { [key: string]: { src: string, name: string } } = {
+    youtube: { src: youtube, name: "Youtube" },
+    chapternotes: { src: chapterNotes, name: "Chapter Notes" },
+    formula: { src: formula, name: "Formula" },
+    chaptertests: { src: test, name: "Previous Year Question paper" },
+    passingpackage: { src: passingPackage, name: "Passing Package" },
+    previouspaper: { src: passingPackage, name: "Previous Year Question Paper" },
+    toppersscripts: { src: toppersscripts, name: "Topper’s Answer Scripts" },
+    diagram: { src: passingPackage, name: "Diagram List" },
+};
+
+const ResourcesMain = () => {
+    const [selectedType, setSelectedType] = useState<string | null>(null);
+    const [expandedEntry, setExpandedEntry] = useState<boolean>(false);
+    const [expandedSubject, setExpandedSubject] = useState<string | null>(null);
+
+    const [showLoginWarning, setShowLoginWarning] = useState(false);
+    const [pendingLink, setPendingLink] = useState<string | null>(null);
+    const [entryMeta, setEntryMeta] = useState<{ subDataId?: string, entryId?: string, resourceId?: string } | null>(null);
+
+    const [loading, setLoading] = useState(true);
+
+    const Resources = useSelector((state: RootState) => state.resources.resources);
+    const entriesMap = useSelector((state: RootState) => state.entries.entriesMap);
+    const lan = useSelector((state: RootState) => state.language.selectedLanguage);
+    const user = useSelector((state: RootState) => state.user.user);
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const classes = useSelector(selectUniqueClasses);
-    const clickedResource = useSelector(selectResourceById(expandedSubject ? expandedSubject : ""));
-    const fetchResources = async () => {
-        if (language === "") {
-            setExpandedSubjectLoading(false);
-            setMessage("First, Please Select Language, ");
-            return;
-        }
-        setExpandedSubjectLoading(true)
-        await GetSubjects({ lan: language, dispatch });
-        setMessage("Language Selected !!");
-        setExpandedSubjectLoading(false);
+    const location = useLocation();
+
+    const toggleExpand = (id: string) => {
+        setExpandedSubject(prev => (prev === id ? null : id));
     };
 
     useEffect(() => {
-        fetchResources();
-    }, [language]);
+        const fetchSubjects = async () => {
+            setLoading(true);
+            await GetSubjects({ lan, dispatch });
+            setLoading(false);
+        };
+        fetchSubjects();
+    }, []);
 
-    useEffect(() => {
-        const reset = location.state?.reset;
-        const data = location.state?.data;
-
-        if (reset || data) {
-
-            setTimeout(() => {
-                setExpandedSubject(data.resourceId);
-                setExpandedEntryId(data.entryId);
-                setExpandedSubId(data.subDataId);
-                setExpandedItemId(data.resourceItemId ?? null);
-                navigate(location.pathname, { replace: true, state: {} });
-            }, 0);
-        }
-    }, [location]);
+    const entries = entriesMap[expandedSubject || ""] || [];
 
     return (
         <main className="w-full h-auto p-4">
-            <div className="resources_heading w-full bg-[#FAC54D] flex rounded-2xl p-2 items-center justify-between">
-                <h2 className="text-3xl font-bold flex-wrap text-gray-800 px-2">
-                    Subjects
-                </h2>
+            <div className="resources_heading w-fit flex rounded-2xl p-2 items-center justify-between">
+                <h2 className="text-3xl font-bold flex-wrap text-gray-800 px-2">Subjects</h2>
             </div>
-            {language !== "" && (
-                <div className="path_showing mt-3 flex items-center gap-2 px-3 py-1 bg-zinc-100 rounded-xl shadow-sm mb-4 border border-gray-300 overflow-x-auto whitespace-nowrap no-scrollbar w-fit text-[14px] sm:text-base">
 
-                    <Tooltip title="Language">
-                        <p className="font-semibold text-blue-800 text-xl">{language}</p>
-                    </Tooltip>
-                    <ArrowForwardIosIcon className="text-yellow-500" />
-                
-                    {classes.length > 0 && (
-                        <Tooltip title="Class">
-                            <p className={`text-xl font-semibold ${clickedResource ? "text-blue-800" : "text-gray-700"}`}>
-                                {classes.slice(0, 3).join(", ")}
-                                {classes.length > 3 && ", ..."}
-                            </p>
-                        </Tooltip>
-                    )}
-
-                    {clickedResource && (
-                        <>
-                            <ArrowForwardIosIcon className="text-yellow-500" />
-                            <Tooltip title="Subject">
-                                <p className="text-gray-700 font-extrabold text-xl">{clickedResource.subj}</p>
-                            </Tooltip>
-                        </>
-                    )}
+            {loading ? (
+                <div className="text-center w-full py-10 text-xl text-gray-600 font-medium">
+                    Loading resources...
                 </div>
-            )}
+            ) : Resources.length === 0 ? (
+                <div className="text-center w-full py-10 text-xl text-gray-600 font-medium">
+                    Resources Not Available Yet
+                </div>
+            ) : (
+                Resources.map((subject) => (
+                    <div key={subject._id} className="mt-4">
+                        <button
+                            onClick={() => toggleExpand(subject._id)}
+                            className="w-full text-left cursor-pointer bg-yellow-300 hover:bg-yellow-400 px-4 py-3 font-semibold text-xl rounded-lg shadow"
+                        >
+                            {subject.subj}
+                        </button>
 
-
-            <section className=" border-8 mt-3 border-[#0E6BB0] bg-yellow-50 h-auto rounded-xl p-4">
-                <div className="bg-white border border-gray-400 rounded-lg shadow-md overflow-hidden">
-                    <ul className="divide-y h-full flex justify-evenly flex-col divide-gray-400">
-                        {allSubjects.length > 0 ? (
-                            allSubjects.map((i) => (
-                                <li key={i._id} className="p-4">
-                                    <Resource
-                                        expandedSubject={expandedSubject}
-                                        setExpandedSubject={setExpandedSubject}
-                                        setExpandedEntryId={setExpandedEntryId}
-                                        setExpandedSubId={setExpandedSubId}
-                                        setExpandedItemId={setExpandedItemId}
-                                        id={i._id}
-                                        subject={i.subj}
-                                        expandedEntryId={expandedEntryId}
-                                        expandedSubId={expandedSubId}
-                                        expandedItemId={expandedItemId}
-                                    />
-                                </li>
-                            ))
-                        ) : expandedSubjectLoading ? (
-                            <Loading />
-                        ) : language !== "" ? (
-                            <div className="w-full max-w-md mx-auto m-6 bg-[#f9dd6e7e] border-2 border-blue-900 rounded-xl p-5 flex flex-col items-center justify-center shadow-md">
-                                <p className="text-center text-gray-700 text-lg ">
-                                    For this Keyword ("{search}"), No subjects available for <span className="font-semibold text-blue-900">{language} </span>Language.
-                                </p>
-                            </div>
-                        ) : (
-                            <>
+                        <AnimatePresence>
+                            {expandedSubject === subject._id && (
                                 <motion.div
-                                    initial={{ x: 300, opacity: 0 }}
-                                    animate={{ x: 0, opacity: 1 }}
-                                    exit={{ x: 300, opacity: 0 }}
-                                    transition={{ type: "spring", stiffness: 100 }}
-                                    className="flex flex-col items-center justify-center border-2 border-blue-800 rounded-2xl p-6 max-w-md mx-auto bg-[#f9dd6e7e] flex-wrap shadow-md m-4 "
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: "auto" }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="mt-2 px-3"
                                 >
-                                    <p className="text-center text-blue-800 font-medium text-lg">
-                                        <span className='underline cursor-pointer' onClick={()=>setSelectLangDialog(true)}>Please select a <span className="font-semibold">language</span></span> to view available subjects. 
-                                    </p>
-                                </motion.div>
-                            </>
-                        )}
-                    </ul>
-                </div>
-            </section>
+                                    <div className="grid grid-cols-3 gap-3 bg-zinc-300 p-3 rounded-md shadow-sm">
+                                        {subject.types.map((type) => {
+                                            const icon = resourceIcons[type?.toLowerCase()];
+                                            return icon ? (
+                                                <div
+                                                    key={type}
+                                                    onClick={() => {
+                                                        const willExpand = !expandedEntry;
+                                                        setExpandedEntry(willExpand);
 
-            {SelectLangDialog && (
-                <LanguageSelector
-                    setOpenSnackbar={setOpenSnackbar}
-                    onClose={() => {
-                        setSelectLangDialog(false);
-                        fetchResources();
-                    }}
-                />
+                                                        if (willExpand) {
+                                                            setSelectedType(type);
+                                                            GetEntries({ resourceId: subject._id, dispatch, type });
+                                                        } else {
+                                                            setSelectedType(null);
+                                                        }
+                                                    }}
+                                                    className="flex flex-col items-center cursor-pointer"
+                                                >
+                                                    <img
+                                                        src={icon.src}
+                                                        alt={icon.name}
+                                                        className="w-14 h-14 object-contain bg-white p-2 rounded-md"
+                                                    />
+                                                    <p className="text-xs font-semibold mt-1 text-black text-center">{icon.name}</p>
+                                                </div>
+                                            ) : null;
+                                        })}
+                                    </div>
+
+                                    {selectedType && selectedType === entries[0]?.type && entries.length > 0 && (
+                                        <div className="mt-4 space-y-2 bg-zinc-300 p-4 rounded-md shadow-inner">
+                                            {entries.map((entryItem) => (
+                                                <div
+                                                    key={entryItem._id}
+                                                    className="bg-yellow-400 rounded-full px-4 py-2 text-start font-medium flex justify-between flex-wrap text-sm cursor-pointer hover:bg-yellow-200"
+                                                >
+                                                    <p>{entryItem.name}</p>
+                                                    <p
+                                                        onClick={() => {
+                                                            if (user && entryItem.link) {
+                                                                window.open(entryItem.link, "_blank");
+                                                            } else {
+                                                                setPendingLink(entryItem.link || null);
+                                                                setEntryMeta({
+                                                                    subDataId: entryItem._id,
+                                                                    entryId: entryItem._id,
+                                                                    resourceId: expandedSubject || ""
+                                                                });
+                                                                setShowLoginWarning(true);
+                                                            }
+                                                        }}
+                                                        className="underline text-blue-700 cursor-pointer"
+                                                    >
+                                                        {entryItem.datatype.toLocaleUpperCase()}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+                ))
             )}
 
-            <Snackbar
-                open={openSnackbar}
-                message={message}
-                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                ContentProps={{
-                    sx: {
-                        backgroundColor: "#FFD004",
-                        color: "black",
-                        fontWeight: "bold",
-                        fontSize: "16px",
-                        borderRadius: "8px",
-                    },
-                }}
-            />
+            {showLoginWarning && (
+                <div className="fixed top-0 left-0 w-full h-full bg-black/40 flex items-center justify-center z-50">
+                    <div className="bg-amber-100 rounded-lg shadow-lg p-6 text-center">
+                        <h2 className="text-xl font-semibold mb-2 flex flex-wrap justify-center items-center gap-1">
+                            <InfoOutlinedIcon fontSize="large" /> Login Required
+                        </h2>
+                        <p className="text-gray-600 mb-4">You need to log in to view this content.</p>
+                        <div className="loginFrom_buttons flex justify-center items-center">
+                            <button
+                                onClick={() => {
+                                    navigate("/login", {
+                                        state: {
+                                            from: location,
+                                            externalLink: pendingLink,
+                                            resetOnReturn: true,
+                                            data: {
+                                                subDataId: entryMeta?.subDataId,
+                                                entryId: entryMeta?.entryId,
+                                                resourceId: entryMeta?.resourceId
+                                            }
+                                        },
+                                    });
+                                }}
+                                className="bg-blue-700 cursor-pointer text-white px-4 py-2 rounded hover:scale-105"
+                            >
+                                Go to Login
+                            </button>
+                            <button
+                                onClick={() => setShowLoginWarning(false)}
+                                className="ml-4 bg-zinc-700 px-4 py-2 rounded text-white cursor-pointer hover:scale-105"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </main>
     );
 };

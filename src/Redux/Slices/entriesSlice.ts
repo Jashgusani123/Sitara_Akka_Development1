@@ -5,6 +5,9 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 interface Entry {
   _id: string;
   type: string;
+  name:string;
+  datatype:string;
+  link:string
 }
 
 interface EntriesMap {

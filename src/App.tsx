@@ -6,6 +6,7 @@ import Login from './Pages/Login';
 import Registration from './Pages/Registration';
 import Resources from './Pages/Resources';
 import type { RootState } from './Redux/Store';
+import LanguageSelect from './Pages/LanguageSelect';
 
 const App = () => {
   const [IsUser, setIsUser] = useState(false);
@@ -18,7 +19,7 @@ const App = () => {
     if (User && token) {
       if (User.role === "USER") {
         setIsUser(true);
-      } 
+      }
     } else if (!User && token) {
       localStorage.removeItem(import.meta.env.VITE_LOCAL_STORAGE_TOKEN);
     } else {
@@ -38,6 +39,7 @@ const App = () => {
         {IsUser && (
           <>
             <Route path="/" element={<Home />} />
+            <Route path="/language" element={<LanguageSelect />} />
             <Route path="/resources" element={<Resources />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </>
@@ -46,6 +48,7 @@ const App = () => {
         {!IsUser && (
           <>
             <Route path="/" element={<Home />} />
+            <Route path="/language" element={<LanguageSelect />} />
             <Route path="/resources" element={<Resources />} />
             <Route path="/login" element={<Login />} />
             <Route path="/registration" element={<Registration />} />
