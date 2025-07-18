@@ -100,6 +100,8 @@ const Registration = () => {
           >
             <KeyboardArrowLeftIcon fontSize="large" />
           </span>
+          <label>Phone number</label>
+
           <input
             type="tel"
             value={phone}
@@ -112,6 +114,7 @@ const Registration = () => {
             readOnly={!!isNumber} // lock if number was passed
             className={`w-full p-3 border border-gray-300 rounded-xl ${isNumber ? 'bg-gray-100 cursor-not-allowed' : ''}`}
           />
+          <label>First name</label>
 
           <input
             type="text"
@@ -120,6 +123,7 @@ const Registration = () => {
             placeholder="First Name"
             className="w-full p-3 border border-gray-300 rounded-xl"
           />
+          <label>Last name</label>
 
           <input
             type="text"
@@ -128,7 +132,7 @@ const Registration = () => {
             placeholder="Last Name"
             className="w-full p-3 border border-gray-300 rounded-xl"
           />
-
+          <label>Age</label>
           <input
             type="number"
             value={age}
@@ -139,6 +143,7 @@ const Registration = () => {
             className="w-full p-3 border border-gray-300 rounded-xl"
           />
 
+          <label>Stander</label>
           <input
             type="text"
             value={standard}
@@ -147,6 +152,7 @@ const Registration = () => {
             className="w-full p-3 border border-gray-300 rounded-xl"
           />
 
+          <label>Gender</label>
           <select
             value={gender}
             onChange={(e) => setGender(e.target.value)}
