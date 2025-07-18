@@ -1,8 +1,8 @@
 import { Snackbar } from '@mui/material';
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { GetEntries } from '../../APIs/GetAPIs';
+import {  useSelector } from 'react-redux';
+// import { GetEntries } from '../../APIs/GetAPIs';
 import type { RootState } from '../../Redux/Store';
 import Loading from '../Loading';
 import ResourceEntry from './ResourceEntry';
@@ -35,7 +35,7 @@ function Resource({
   const [Message, setMessage] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const entriesMap = useSelector((state: RootState) => state.entries.entriesMap);
 
   useEffect(() => {
@@ -65,7 +65,7 @@ function Resource({
 
     const isAvailable = !!entriesMap[resourceId];
     if (!isAvailable && resourceId) {
-      GetEntries({ resourceId, dispatch });
+      // GetEntries({ resourceId, dispatch });
     }
   };
 
